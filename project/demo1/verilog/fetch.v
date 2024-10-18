@@ -5,7 +5,12 @@
    Description     : This is the module for the overall fetch stage of the processor.
 */
 `default_nettype none
-module fetch (/* TODO: Add appropriate inputs/outputs for your fetch stage here*/);
+module fetch ( input clk, 
+               input rst, 
+               input [15:0]   pc, 
+               output [15:0]  next_pc, 
+               output [15:0]  instr, 
+               output err);
 
    // TODO: Your code here
    

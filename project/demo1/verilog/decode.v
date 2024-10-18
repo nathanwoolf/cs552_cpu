@@ -8,6 +8,8 @@
 module decode (/* TODO: Add appropriate inputs/outputs for your decode stage here*/);
 
    // TODO: Your code here
+
+   // instatiate control module
    
 endmodule
 `default_nettype wire

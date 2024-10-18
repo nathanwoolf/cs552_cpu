@@ -22,8 +22,8 @@ module proc (/*AUTOARG*/
    // As desribed in the homeworks, use the err signal to trap corner
    // cases that you think are illegal in your statemachines
    
-   
    /* your code here -- should include instantiations of fetch, decode, execute, mem and wb modules */
+
    
 endmodule // proc
 `default_nettype wire
