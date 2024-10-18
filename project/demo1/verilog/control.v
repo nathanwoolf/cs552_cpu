@@ -39,7 +39,6 @@ always @(*) begin
             assign invB = (opcode[1:0] == 2'b11) ? 1 : 0;
         end 
 
-
     endcase 
 end 
    
