@@ -20,10 +20,11 @@ module fetch ( input clk,
 
    // create latch for halt signal 
    // -> will take in halt from control block and latch it internally
+   // TODO ask Nathan about halt flop
    dff HALT(.q(halt_dff), .d(halt), .clk(clk), .rst(rst));
 
    //want to use a latch for the pc to hold value
-   wire pc_latch;           
+   wire pc_latch;
    register PC(.clk(clk), .rst(rst), .data_in(pc), .data_out(pc_latch), .write_en(1'b1), .err(err));
 
    //increment pc by two

@@ -39,7 +39,7 @@ always @(*) begin
             immSrc = 1'bx; 
             brControl = 3'b0xx;
 
-            aluOp = (~opcode[1]) ? 3'b000 : opcode[2:0]; 
+            aluOp = (~opcode[1]) ? 3'b000 : opcode[2:0];
             invA = (~opcode[1] & opcode[0]) ? 1'b1 : 1'b0;
             invB = (opcode[1] & opcode[0]) ? 1'b1 : 1'b0;
             cin = (~opcode[1] & opcode[0]) ? 1'b1 : 1'b0;
@@ -322,3 +322,4 @@ always @(*) begin
 end 
    
 endmodule
+`default_nettype wire

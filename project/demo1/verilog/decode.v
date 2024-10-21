@@ -22,7 +22,8 @@ module decode (input clk,
                output [15:0]aluA, 
                output [15:0]aluB, 
                output [15:0]imm11_ext, 
-               output [15:0]imm8_ext); 
+               output [15:0]imm8_ext,
+               output [7:0]SLBI_instr); // TODO
    
    // control module signals
    wire [1:0]aluSrc;
@@ -35,13 +36,13 @@ module decode (input clk,
    //4-1 mux controlled by regdest -> decides what our write register is
    // instatiate control module
    control CONTROLSIGS(.opcode(instr[15:11]), .r_typeALU(instr[1:0]), .aluSrc(aluSrc), .zeroExt(zeroExt), 
-                        .regSrouce(regSource), .regWrite(regWrite), .regDest(regDest),
-                        .memWrite(memWrite), .jump(jump), .immSource(immSource), .brControl(brControl), 
+                        .regSrc(regSrc), .regWrite(regWrite), .regDest(regDest),
+                        .memWrite(memWrite), .jump(jump), .immSrc(immSrc), .brControl(brControl), 
                         .aluOp(aluOp), .invA(invA), .invB(invB), .cin(cin), .STU(STU), .BTR(BTR), .setIf(setIf)); 
 
    //need to flop regWrite so signal is still high when WB happens
    reg regWrite_latch; 
-   dff REGWRITE_LATCH(.d(regWrite), .q(regWrite_latch), .clk(clk), .rst(rst)); 
+   dff REGWRITE_LATCH(.d(regWrite), .q(regWrite_latch), .clk(clk), .rst(rst)); // TODO ask nathan about latch
    
    // 4 to 1 mux to control write data reg
    reg [2:0]writeReg;
