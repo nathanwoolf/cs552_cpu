@@ -6,9 +6,16 @@
                      processor.
 */
 `default_nettype none
-module memory (/* TODO: Add appropriate inputs/outputs for your memory stage here*/);
+module memory (input clk,
+               input rst,
+               input memWrt,
+               input [15:0]aluOut,
+               input [15:0]writeData,
+               output [15:0]readData);
 
-   // TODO: Your code here
-   
+   // TODO enable vs wr? what do we do here?
+   memeory2c instruction_mem(.data_out(readData), .data_in(writeData), .addr(aluOut), .enable(1'b0), .wr(memWrt), .createdump(halt_dff), .clk(clk), .rst(rst)); 
+
+
 endmodule
 `default_nettype wire

@@ -22,8 +22,32 @@ module execute (  input [15:0]PC,            // pc for branch calcs
                   output [15:0]calcPC);
 
    // TODO: branch logic
+   wire ZF, SF, OF, CF;
+
+   branch_cmd BRANCHCOMMAND(.brControl(), .ZF(ZF), .SF(SF), .OF(),  .CF(CF), .brSel());
+
+
+   alu ALU(.inA(aluA), .inB(aluB), .Cin(cin), .Oper(aluOp), .invA(invA), .invB(invB), .sign(1'b1), .Out(aluOut), .Ofl(OF), .Zero(ZF));
+
+
+
+
+
 
    // TODO: set if equal/less than/produce carry out logic -> mux with alu out based on setIf control sig
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 endmodule
 `default_nettype wire
