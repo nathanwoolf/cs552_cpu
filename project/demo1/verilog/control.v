@@ -31,9 +31,9 @@ always @(*) begin
         5'b010??: begin 
             aluSrc = 2'b10;
             zeroExt = (opcode[2]) ? 1 : 0;
+            regDest = 2'b00;
             regSrc = 2'b10;
             regWrite = 1'b1; 
-            regDest = 2'b00;
             memWrite = 1'b0; 
             jump = 1'b0;
             immSrc = 1'bx; 
@@ -41,8 +41,8 @@ always @(*) begin
 
             aluOp = (~opcode[1]) ? 3'b000 : opcode[2:0]; 
             invA = (~opcode[1] & opcode[0]) ? 1'b1 : 1'b0;
-            cin = (~opcode[1] & opcode[0]) ? 1'b1 : 1'b0;
             invB = (opcode[1] & opcode[0]) ? 1'b1 : 1'b0;
+            cin = (~opcode[1] & opcode[0]) ? 1'b1 : 1'b0;
 
             STU = 1'bx;
             BTR = 1'bx;
@@ -53,23 +53,29 @@ always @(*) begin
         5'b101??: begin 
             aluSrc = 2'b10; 
             zeroExt = 1'bx;
+            regDest = 2'b00;
             regSrc = 2'b10;
             regWrite = 1'b1; 
             memWrite = 1'b0;
             jump = 1'b0;
-            immSrc = 1'bx; 
+            immSrc = 1'bx;
             brControl = 3'b0xx;
 
             aluOp = opcode[2:0]; 
             invA = 1'b0;
-            cin = 1'b0;
             invB = 1'b0;
+            cin = 1'b0;
+
+            STU = 1'bx;
+            BTR = 1'bx;
+            setIf = 1'b0;
         end
 
         // ST
         5'b10000: begin 
             aluSrc = 2'b10; 
             zeroExt = 1'b0;
+            regDest = 2'bxx;
             regSrc = 2'bxx;
             regWrite = 1'b0; 
             memWrite = 1'b1;
@@ -79,14 +85,19 @@ always @(*) begin
 
             aluOp = 3'b000;
             invA = 1'b0;
-            cin = 1'b0;
             invB = 1'b0;
+            cin = 1'b0;
+
+            STU = 1'b0;
+            BTR = 1'bx;
+            setIf = 1'b0;
         end
 
         // LD
         5'b10001: begin 
-            aluSrc = 2'b10; 
+            aluSrc = 2'b01; 
             zeroExt = 1'b0;
+            regDest = 2'b00;
             regSrc = 2'b01;
             regWrite = 1'b1; 
             memWrite = 1'b0;
@@ -96,14 +107,19 @@ always @(*) begin
 
             aluOp = 3'b000;
             invA = 1'b0;
-            cin = 1'b0;
             invB = 1'b0;
+            cin = 1'b0;
+
+            STU = 1'bx;
+            BTR = 1'bx;
+            setIf = 1'b0;
         end
 
         // STU
         5'b10011: begin 
             aluSrc = 2'b10; 
             zeroExt = 1'b0;
+            regDest = 2'b01;
             regSrc = 2'b10;
             regWrite = 1'b1; 
             memWrite = 1'b1;
@@ -113,30 +129,41 @@ always @(*) begin
 
             aluOp = 3'b000;
             invA = 1'b0;
-            cin = 1'b0;
             invB = 1'b0;
+            cin = 1'b0;
+
+            STU = 1'b0;
+            BTR = 1'bx;
+            setIf = 1'b0;
         end
 
         // BTR TODO
         5'b11001: begin 
-            aluSrc = 2'b;
-            zeroExt = 1'b;
-            regWrite = 1'b; 
-            memWrite = 1'b;
-            jump = 1'b;
-            immSrc = 1'b; 
+            aluSrc = 2'bxx;
+            zeroExt = 1'bx;
+            regDest = 2'b10;
+            regSrc = 2'b11;
+            regWrite = 1'b1; 
+            memWrite = 1'b0;
+            jump = 1'b0;
+            immSrc = 1'bx; 
             brControl = 3'b0xx;
 
-            aluOp = 3'b;
-            invA = 1'b;
-            cin = 1'b;
-            invB = 1'b;
+            aluOp = 3'bxxx;
+            invA = 1'bx;
+            invB = 1'bx;
+            cin = 1'bx;
+
+            STU = 1'bx;
+            BTR = 1'b1;
+            setIf = 1'b0;
         end
 
         // Arithmatic with registers
         5'b11011: begin 
             aluSrc = 2'b00;
             zeroExt = 1'bx;
+            regDest = 2'b10;
             regSrc = 2'b10;
             regWrite = 1'b1; 
             memWrite = 1'b0;
@@ -146,14 +173,19 @@ always @(*) begin
 
             aluOp = (~r_typeALU[1]) ? 3'b000 : {1'b0, r_typeALU[1:0]};
             invA = (~r_typeALU[1] & r_typeALU[0]) ? 1'b1 : 1'b0;
-            cin = (~r_typeALU[1] & r_typeALU[0]) ? 1'b1 : 1'b0;
             invB = (r_typeALU[1] & r_typeALU[0]) ? 1'b1 : 1'b0;
+            cin = (~r_typeALU[1] & r_typeALU[0]) ? 1'b1 : 1'b0;
+
+            STU = 1'bx;
+            BTR = 1'bx;
+            setIf = 1'b0;
         end
 
         // Shift with registers
         5'b11010: begin 
             aluSrc = 2'b00;
             zeroExt = 1'bx;
+            regDest = 2'b10;
             regSrc = 2'b10;
             regWrite = 1'b1; 
             memWrite = 1'b0;
@@ -163,14 +195,19 @@ always @(*) begin
 
             aluOp = {1'b1, r_typeALU[1:0]};
             invA = 1'b0;
-            cin = 1'b0;
             invB = 1'b0;
+            cin = 1'b0;
+
+            STU = 1'bx;
+            BTR = 1'bx;
+            setIf = 1'b0;
         end
 
         // Set
         5'b111??: begin 
             aluSrc = 2'b11;
             zeroExt = 1'bx;
+            regDest = 2'b10;
             regSrc = 2'b10;
             regWrite = 1'b1; 
             memWrite = 1'b0;
@@ -180,16 +217,21 @@ always @(*) begin
 
             aluOp = 3'b000;
             invA = 1'b0;
-            cin = 1'b0;
             invB = (opcode[0] & opcode[1]) ? 1'b0 : 1'b1;
+            cin = (opcode[0] & opcode[1]) ? 1'b0 : 1'b1;
+
+            STU = 1'bx;
+            BTR = 1'bx;
+            setIf = 1'b1;
         end
 
         // Branch
-        5'b111??: begin 
+        5'b011??: begin 
             aluSrc = 2'b10;
             zeroExt = 1'b1;
+            regDest = 2'bxx;
             regSrc = 2'bxx;
-            regWrite = 1'b0; 
+            regWrite = 1'b0;
             memWrite = 1'b0;
             jump = 1'b0;
             immSrc = 1'bx; 
@@ -197,12 +239,86 @@ always @(*) begin
 
             aluOp = 3'b000;
             invA = 1'b0;
-            cin = 1'b0;
             invB = 1'b0;
+            cin = 1'b0;
+
+            STU = 1'bx;
+            BTR = 1'bx;
+            setIf = 1'bx;
         end
+
+        // LBI
+        5'b11000: begin 
+            aluSrc = 2'b01;
+            zeroExt = 1'b0;
+            regDest = 2'b01;
+            regSrc = 2'b10;
+            regWrite = 1'b1;
+            memWrite = 1'b0;
+            jump = 1'b0;
+            immSrc = 1'bx; 
+            brControl = 3'b0xx;
+
+            aluOp = 3'b000;
+            invA = 1'b0;
+            invB = 1'b0;
+            cin = 1'b0;
+
+            STU = 1'bx;
+            BTR = 1'bx;
+            setIf = 1'b0;
+        end
+
+        // SLBI
+        5'b11000: begin 
+            aluSrc = 2'bxx;
+            zeroExt = 1'b1;
+            regDest = 2'b11;
+            regSrc = 2'b11;
+            regWrite = 1'b1;
+            memWrite = 1'b0;
+            jump = 1'b0;
+            immSrc = 1'bx; 
+            brControl = 3'b0xx;
+
+            aluOp = 3'bxxx;
+            invA = 1'bx;
+            invB = 1'bx;
+            cin = 1'bx;
+
+            STU = 1'b0;
+            BTR = 1'bx;
+            setIf = 1'b0;
+        end
+
+        // Jump
+        5'b001??: begin 
+            aluSrc = 2'bxx;
+            zeroExt = 1'b0;
+            regDest = 2'b11;
+            regSrc = 2'b00;
+            regWrite = opcode[1];
+            memWrite = 1'b0;
+            jump = 1'b1;
+            immSrc = opcode[0]; 
+            brControl = 3'b0xx;
+
+            aluOp = 3'b000;
+            invA = 1'b0;
+            invB = 1'b0;
+            cin = 1'b0;
+
+            STU = 1'bx;
+            BTR = 1'bx;
+            setIf = 1'b0;
+        end
+
+        // SIIC/NOP TODO
+        // 5'b0001?: begin 
+        
+        // end
 
     endcase 
 end 
    
 endmodule
-`default_nettype wire
