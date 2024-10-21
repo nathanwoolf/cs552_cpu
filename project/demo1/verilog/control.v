@@ -34,12 +34,12 @@ always @(*) begin
             memWrite = 1'b0; 
             jump = 1'b0;
             immSource = 1'bx; 
-            brControl = 1'bx;
+            brControl = 2'bxx;
 
             aluOp = (~opcode[1]) ? 3'b000 : opcode[2:0]; 
-            invA = (opcode[1:0] == 2'b01) ? 1'b1 : 1'b0;
-            cin = (opcode[1:0] == 2'b01) ? 1'b1 : 1'b0;
-            invB = (opcode[1:0] == 2'b11) ? 1'b1 : 1'b0;
+            invA = (~opcode[1] & opcode[0]) ? 1'b1 : 1'b0;
+            cin = (~opcode[1] & opcode[0]) ? 1'b1 : 1'b0;
+            invB = (opcode[1] & opcode[0]) ? 1'b1 : 1'b0;
         end
 
         // Shift with immediate
@@ -52,7 +52,7 @@ always @(*) begin
             memWrite = 1'b0;
             jump = 1'b0;
             immSource = 1'bx; 
-            brControl = 1'bx;
+            brControl = 2'bxx;
 
             aluOp = opcode[2:0]; 
             invA = 1'b0;
@@ -70,7 +70,7 @@ always @(*) begin
             memWrite = 1'b1;
             jump = 1'b0;
             immSource = 1'bx; 
-            brControl = 1'bx;
+            brControl = 2'bxx;
 
             aluOp = 3'b000;
             invA = 1'b0;
@@ -88,7 +88,7 @@ always @(*) begin
             memWrite = 1'b0;
             jump = 1'b0;
             immSource = 1'bx; 
-            brControl = 1'bx;
+            brControl = 2'bxx;
 
             aluOp = 3'b000;
             invA = 1'b0;
@@ -106,7 +106,7 @@ always @(*) begin
             memWrite = 1'b1;
             jump = 1'b0;
             immSource = 1'bx; 
-            brControl = 1'bx;
+            brControl = 2'bxx;
 
             aluOp = 3'b000;
             invA = 1'b0;
@@ -124,7 +124,7 @@ always @(*) begin
             memWrite = 1'b;
             jump = 1'b;
             immSource = 1'b; 
-            brControl = 1'b;
+            brControl = 2'bxx;
 
             aluOp = 3'b;
             invA = 1'b;
@@ -132,7 +132,7 @@ always @(*) begin
             invB = 1'b;
         end
 
-        // Arithmatic registers
+        // Arithmatic with registers
         5'b11011: begin 
             aluSrc = 2'b00;
             zeroExt = 1'bx;
@@ -142,12 +142,66 @@ always @(*) begin
             memWrite = 1'b0;
             jump = 1'b0;
             immSource = 1'bx; 
-            brControl = 1'bx;
+            brControl = 2'bxx;
 
-            aluOp = ?????????? TODO;
-            invA = 1'b;
-            cin = 1'b;
-            invB = 1'b;
+            aluOp = (~r_typeALU[1]) ? 3'b000 : {1'b0, r_typeALU[1:0]};
+            invA = (~r_typeALU[1] & r_typeALU[0]) ? 1'b1 : 1'b0;
+            cin = (~r_typeALU[1] & r_typeALU[0]) ? 1'b1 : 1'b0;
+            invB = (r_typeALU[1] & r_typeALU[0]) ? 1'b1 : 1'b0;
+        end
+
+        // Shift with registers
+        5'b11010: begin 
+            aluSrc = 2'b00;
+            zeroExt = 1'bx;
+            memToReg = 1'b0;
+            regWrite = 1'b1; 
+            memRead = 1'b0; 
+            memWrite = 1'b0;
+            jump = 1'b0;
+            immSource = 1'bx; 
+            brControl = 2'bxx;
+
+            aluOp = {1'b1, r_typeALU[1:0]};
+            invA = 1'b0;
+            cin = 1'b0;
+            invB = 1'b0;
+        end
+
+        // Set
+        5'b111??: begin 
+            aluSrc = 2'b11;
+            zeroExt = 1'bx;
+            memToReg = 1'b0;
+            regWrite = 1'b1; 
+            memRead = 1'b0; 
+            memWrite = 1'b0;
+            jump = 1'b0;
+            immSource = 1'bx; 
+            brControl = 2'bxx;
+
+            aluOp = 3'b000;
+            invA = 1'b0;
+            cin = 1'b0;
+            invB = 1'b0;
+        end
+
+        // Branch
+        5'b111??: begin 
+            aluSrc = 2'b10;
+            zeroExt = 1'b1;
+            memToReg = 1'b0;
+            regWrite = 1'b0; 
+            memRead = 1'b0; 
+            memWrite = 1'b0;
+            jump = 1'b0;
+            immSource = 1'bx; 
+            brControl = opcode[1:0];
+
+            aluOp = 3'b000;
+            invA = 1'b0;
+            cin = 1'b0;
+            invB = 1'b0;
         end
 
     endcase 
