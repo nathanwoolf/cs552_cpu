@@ -23,6 +23,59 @@ module proc (/*AUTOARG*/
    // cases that you think are illegal in your statemachines
    
    /* your code here -- should include instantiations of fetch, decode, execute, mem and wb modules */
+   
+   // ---------- fetch I/O ----------
+   wire        err, 
+               halt;  
+   wire [15:0] instr, 
+               PC, 
+               next_pc;
+   
+   // ---------- decode I/O ----------
+   wire [4:0]  opcode; 
+   wire [1:0]  r_typeALU;
+
+   // control signals used outside of DECODE stage
+   wire [1:0]  aluSrc, 
+               regSrc;
+   wire        zeroExt, 
+               regWrite, 
+               regDest, 
+               memWrite, 
+               jump, 
+               immSrc, 
+               invA, 
+               invB, 
+               cin, 
+               STU, 
+               BTR, 
+               setIf;
+   wire [2:0]  brControl, 
+               aluOp;
+   wire [15:0] aluA, 
+               aluB, 
+               imm11_ext, 
+               imm8_ext, 
+               read2Data;
+
+   // ---------- execute I/O ----------
+
+
+   // instantiate fetch module
+   fetch FETCH(.clk(clk), .rst(rst), .halt(halt), .pc(pc), .next_pc(next_pc), 
+               .instr(instr), .err(err));
+
+   decode DECODE( .clk(clk), .rst(rst), .instr(instr), .writeData(writeData), 
+                  .memWrite(memWrite), .jump(jump), .immSrc(immSrc), .brControl(brControl), 
+                  .aluOp(aluOp), .invA(invA), .invB(invB), .cin(cin), .BTR(BTR), .setIf(setIf), 
+                  .aluA(aluA), .aluB(aluB), .imm11_ext(imm11_ext), .imm8_ext(imm8_ext), 
+                  .read2Data(read2Data)); 
+
+   execute EXECUTE ( .clk(clk), .rst(rst), .PC(PC), .aluA(aluA), .aluB(aluB), 
+                     .invA(invA), invB(invB), .cin(cin), .aluOp(aluOp), .immSrc(immSrc), 
+                     .jump(jump), .imm11_ext(imm11_ext), .imm8_ext(imm8_ext), 
+                     .read2Data(read2Data), .BTR_cs(BTR_cs), .STU(STU), .aluOut(aluOut), 
+                     .writeData(writeData), .specOps(specOps), .calcPC(calcPC));
 
    
 endmodule // proc

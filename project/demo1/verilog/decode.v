@@ -23,7 +23,7 @@ module decode (input clk,
                output [15:0]aluB, 
                output [15:0]imm11_ext, 
                output [15:0]imm8_ext,
-               output [7:0]SLBI_instr); // TODO
+               output [15:0]read2Data); // TODO
    
    // control module signals
    wire [1:0]aluSrc;
@@ -49,7 +49,6 @@ module decode (input clk,
    mux4_1_3b REGDEST(.sel(regDest), .inp0(instr[7:5]), .inp1(instr[10:8]), .inp2(instr[4:2]), .inp3(3'b111), .out(writeReg));
 
    // outputs from reg file go to alusrc1 and alusrc2 -> need to mux read2Data with other signals
-   wire [15:0] read2Data;  
    wire regWrite; 
    wire err; 
    regFile REGISTERFILE(.read1RegSel(instr[10:8]), .read2RegSel(instr[7:5]), .writeData(writeData), 
