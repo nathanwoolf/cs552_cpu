@@ -9,30 +9,35 @@ module decode (input clk,
                input rst, 
                input [15:0]instr,
                input [15:0]writeData,  
-               output memWrite,           // 
+               output memWrite,           
                output jump,               // branch half of execute
                output immSrc,             // to go to branch part of execute
+               output [2:0]brControl,
                output [2:0]aluOp, 
                output invA, 
                output invB, 
-               output cin, 
-               output regSrc,
-               output [15:0]aluSrc1, 
-               output [15:0]aluSrc2, 
-               output [2:0]brControl); 
+               output cin,
+               output BTR,
+               output setIf, 
+               output [15:0]aluA, 
+               output [15:0]aluB, 
+               output [15:0]imm11_ext, 
+               output [15:0]imm8_ext); 
    
    // control module signals
    wire [1:0]aluSrc;
+   wire [1:0]regSrc,
    wire zeroExt; 
    wire regDest; 
    wire regWrite; 
+   wire STU; 
    
    //4-1 mux controlled by regdest -> decides what our write register is
    // instatiate control module
    control CONTROLSIGS(.opcode(instr[15:11]), .r_typeALU(instr[1:0]), .aluSrc(aluSrc), .zeroExt(zeroExt), 
-                        .regDest(regDest), .regSrouce(regSource), .regWrite(regWrite), 
-                        .memWrite(memWrite), .jump(jump), .immSource(immSource), 
-                        .aluOp(aluOp), .invA(invA), .invB(invB), .cin(cin), .brControl(brControl)); 
+                        .regSrouce(regSource), .regWrite(regWrite), .regDest(regDest),
+                        .memWrite(memWrite), .jump(jump), .immSource(immSource), .brControl(brControl), 
+                        .aluOp(aluOp), .invA(invA), .invB(invB), .cin(cin), .STU(STU), .BTR(BTR), .setIf(setIf)); 
 
    //need to flop regWrite so signal is still high when WB happens
    reg regWrite_latch; 
@@ -47,7 +52,7 @@ module decode (input clk,
    wire regWrite; 
    wire err; 
    regFile REGISTERFILE(.read1RegSel(instr[10:8]), .read2RegSel(instr[7:5]), .writeData(writeData), 
-                        .writeEn(regWrite_latch), .read1Data(aluSrc1), .read2Data(read2Data), .writeRegSel(writeReg),
+                        .writeEn(regWrite_latch), .read1Data(aluA), .read2Data(read2Data), .writeRegSel(writeReg),
                         .err(err), .clk(clk), .rst(rst)); 
 
    // sign extend or zero extend our immediate values form instruction bits
@@ -57,7 +62,7 @@ module decode (input clk,
    assign imm11_ext = {{5{instr[10]}}, instr[10:0]};
 
    //pick the 'b' input of alu in execute
-   mux4_1_16b ALUSOURCE(.sel(aluSrc), .inp0(read2Data), .inp1(imm8_ext), .inp2(imm5_ext), .inp3(16'b0), .out(aluSrc2));
+   mux4_1_16b ALUSOURCE(.sel(aluSrc), .inp0(read2Data), .inp1(imm8_ext), .inp2(imm5_ext), .inp3(16'b0), .out(aluB));
 
 endmodule
 `default_nettype wire

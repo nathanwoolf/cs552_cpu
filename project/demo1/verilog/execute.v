@@ -5,15 +5,21 @@
    Description     : This is the overall module for the execute stage of the processor.
 */
 `default_nettype none
-module execute (  input [15:0]aluA, 
-                  input [15:0]aluB, 
-                  input invA, 
-                  input invB, 
-                  input cin, 
-                  input [2:0]aluOp, 
+module execute (  input [15:0]PC,            // pc for branch calcs
+                  input [15:0]aluA,          // --------------- alu sigs ---------------
+                  input [15:0]aluB,          // ..
+                  input invA,                // ..
+                  input invB,                // ..
+                  input cin,                 // ..
+                  input [2:0]aluOp,          // ----------------------------------------
+                  input immSrc,              // -------------- br/jmp sigs -------------
+                  input jump,                // ..
+                  input [15:0]imm11_ext,     // ..
+                  input [15:0]imm8_ext,      // ----------------------------------------
                   output [15:0]aluOut,
-                  output [15:0]writeData, 
-                  );
+                  output [15:0]writeData,
+                  output [15:0]specOps,      // SLBI/BTR signal for regSrc mux 
+                  output [15:0]calcPC);
 
    // TODO: branch logic
 
