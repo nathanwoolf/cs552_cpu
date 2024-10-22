@@ -9,7 +9,7 @@ z2
 cModel Technology
 Z0 d/home/fitzgerald/private/ece552/cs552_cpu/project/demo1/verilog
 valu
-Z1 !s110 1729629822
+Z1 !s110 1729634327
 !i10b 1
 !s100 VGCI<O?CozG7?QjzbPCSD3
 ITKjkSPS8^WL[dbob1^0e`0
@@ -23,7 +23,7 @@ Z3 OP;L;10.7c;67
 r1
 !s85 0
 31
-Z4 !s108 1729629822.000000
+Z4 !s108 1729634327.000000
 !s107 wb.v|shift_rght_logical.v|shift_rght_arithmetic.v|shift_lft.v|shifter.v|set_if.v|rotate_lft.v|register.v|regFile.v|proc.v|proc_hier.v|mux4_1_3b.v|mux4_1_16b.v|memory.v|memory2c.v|fullAdder_1b.v|fetch.v|execute.v|dff.v|decode.v|control.v|clkrst.v|cla_4b.v|cla_16b.v|branch_cmd.v|alu.v|alu_hier.v|proc_hier_bench.v|
 Z5 !s90 +define+RANDSEED=3|-work|__work|proc_hier_bench.v|alu_hier.v|alu.v|branch_cmd.v|cla_16b.v|cla_4b.v|clkrst.v|control.v|decode.v|dff.v|execute.v|fetch.v|fullAdder_1b.v|memory2c.v|memory.v|mux4_1_16b.v|mux4_1_3b.v|proc_hier_bench.v|proc_hier.v|proc.v|regFile.v|register.v|rotate_lft.v|set_if.v|shifter.v|shift_lft.v|shift_rght_arithmetic.v|shift_rght_logical.v|wb.v|
 !i113 1
@@ -165,11 +165,11 @@ R8
 vdecode
 R1
 !i10b 1
-!s100 NgI_VO`<PJM=OnaKSMnkT1
-IQZV0]lNHZUiVUh^3XajSh2
+!s100 BRL5Eb6^L9dB@0z8m7ERi3
+Idhn`ikIl=CFTYEjM^Al]d2
 R2
 R0
-w1729629741
+w1729631613
 8decode.v
 Fdecode.v
 L0 8
@@ -231,11 +231,11 @@ R8
 vfetch
 R1
 !i10b 1
-!s100 faSU7AZXlh2>bhLD@a_]=0
-IIBhh[1Ej>P]WzClf[Yc`83
+!s100 ZAfJ]JBU3QP_Ej4d;jl>52
+IKYA@3=[b6@6T;`0IB:GMY1
 R2
 R0
-w1729629430
+w1729632004
 8fetch.v
 Ffetch.v
 L0 8
@@ -276,11 +276,11 @@ nfull@adder_1b
 vmemory
 R1
 !i10b 1
-!s100 jKL:m58H0LHnDWi8d5F_11
-I8ID4MP^S`_6K2Zlmf[_0I3
+!s100 Y7z3g1ZfdJX7Q:G9Q3M6O0
+IOkhTblPKTbBH@l72K?6`k0
 R2
 R0
-w1729629563
+w1729632310
 8memory.v
 Fmemory.v
 L0 9
@@ -364,11 +364,11 @@ R8
 vproc
 R1
 !i10b 1
-!s100 S763o<Hl01o`ja2KZ]bNz2
-I:7R60m9hI[T_5IRI7GTW70
+!s100 oi3bWR^>i:>mM8FWYl]7^3
+IF<03Q<^o<dSJ@=RLH<5;h3
 R2
 R0
-w1729629586
+w1729632033
 8proc.v
 Fproc.v
 L0 5
@@ -408,11 +408,11 @@ R8
 vproc_hier_bench
 R1
 !i10b 1
-!s100 NC65SoK17afJT_<_F7KdJ1
-I?2DbzN=z]b@We97nNAWCe2
+!s100 gPk<c>E6`8QGgF7k?4[BC2
+ID?6eWcP:W4V25I9z_gGBb3
 R2
 R0
-R9
+w1729634311
 8proc_hier_bench.v
 Fproc_hier_bench.v
 L0 5
@@ -430,11 +430,11 @@ R8
 vregFile
 R1
 !i10b 1
-!s100 S@L5N8@0Q1Wd=daT5z`[o0
-I3KB^M]hEN@E2UD590C64?1
+!s100 C_nB08Z=m3AnJEH5jTKZW0
+IOQ0=d[m^PgWc9Kifoo41A0
 R2
 R0
-w1729629817
+w1729631486
 8regFile.v
 FregFile.v
 Z11 L0 10
@@ -453,11 +453,11 @@ nreg@file
 vregister
 R1
 !i10b 1
-!s100 :f0Y2Lj=BOh9ZQmzz`K<@3
-I`?Ua5ODj:^7i7d>S9_0kF3
+!s100 ]7JYlIPLzOA0N=lT`Pi@g3
+IbDNEnBN?D14a7T3]e@7iR3
 R2
 R0
-w1729629261
+w1729631918
 8register.v
 Fregister.v
 L0 1
@@ -495,7 +495,7 @@ R6
 R7
 R8
 vset_if
-Z12 !s110 1729629823
+R1
 !i10b 1
 !s100 ?6G^B1megh=ESkIf6NGP:2
 Ioi5lQBSZa9E3ilk>=2zB<1
@@ -517,7 +517,7 @@ R6
 R7
 R8
 vshift_lft
-R12
+R1
 !i10b 1
 !s100 @i7T^^kPMod6=DNmniY2>1
 I>OXkgeOz[Oh781CLAXLlQ2
@@ -539,7 +539,7 @@ R6
 R7
 R8
 vshift_rght_arithmetic
-R12
+R1
 !i10b 1
 !s100 _ZS2L;:K[hml]3<>z?N;o1
 IoFSjcDW[I;iSMV?2D084A0
@@ -561,7 +561,7 @@ R6
 R7
 R8
 vshift_rght_logical
-R12
+R1
 !i10b 1
 !s100 X>2S5i7a4bjiB94Q3[[cA3
 ISHdG86g3I4RZn^b026=5X2
@@ -583,7 +583,7 @@ R6
 R7
 R8
 vshifter
-R12
+R1
 !i10b 1
 !s100 4>@K^]X6`0KMc36BF_c9h0
 ID4c63]cnGcRj[2BJn@B<63
@@ -605,7 +605,7 @@ R6
 R7
 R8
 vwb
-R12
+R1
 !i10b 1
 !s100 Nc;`WOj2Pn^VF>QEm>g6o0
 IA1`GX_VCYRzRhM>OkYC_<2

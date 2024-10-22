@@ -9,12 +9,19 @@
 module memory (input wire clk,
                input wire rst,
                input wire memWrite,
-               input wire [15:0]aluResult,
+               input wire [15:0]aluOut,
                input wire [15:0]writeData,
+               input wire halt,
                output wire [15:0]readData);
 
    // TODO enable vs wr? what do we do here?
-   memory2c instruction_mem( .data_out(readData), .data_in(writeData), .addr(aluResult), 
+   // TODO what to do with halt?
+
+   // wr = memReadOrWrite
+   // enable = memWrite
+   // memRead?
+
+   memory2c instruction_mem( .data_out(readData), .data_in(writeData), .addr(aluOut), 
                               .enable(1'b0), .wr(memWrite), .createdump(1'b0), 
                               .clk(clk), .rst(rst)); 
 

@@ -1,8 +1,8 @@
 module register #(parameter WIDTH = 16) (clk, rst, data_in, data_out, write_en, err); 
-    input clk, rst, write_en; 
-    input [WIDTH-1:0]data_in;
-    output [WIDTH-1:0]data_out;
-    output err; 
+    input wire clk, rst, write_en; 
+    input wire [WIDTH-1:0]data_in;
+    output wire [WIDTH-1:0]data_out;
+    output wire err; 
 
     wire [WIDTH-1:0] d;
 

@@ -1,5 +1,5 @@
 # vsim -c proc_hier_bench -lib __work -voptargs="+acc" -wlf dump.wlf -do "log -howmany -rec /* ; run -all" 
-# Start time: 15:43:44 on Oct 22,2024
+# Start time: 16:58:48 on Oct 22,2024
 # //  ModelSim DE 10.7c Aug 17 2018Linux 5.15.0-124-generic
 # //
 # //  Copyright 1991-2018 Mentor Graphics Corporation
@@ -38,30 +38,17 @@
 # Loading __work.shift_rght_logical
 # Loading __work.memory
 # Loading __work.wb
-# ** Warning: (vsim-3008) [CNNODP] - Component name (write) is not on a downward path.
-#    Time: 0 ns  Iteration: 0  Instance: /proc_hier_bench File: proc_hier_bench.v Line: 131
-# ** Error: (vsim-3043) Unresolved reference to 'write' in DUT.p0.decode0.regFile0.write.
-#    Time: 0 ns  Iteration: 0  Instance: /proc_hier_bench File: proc_hier_bench.v Line: 131
-# ** Warning: (vsim-3008) [CNNODP] - Component name (halt) is not on a downward path.
-#    Time: 0 ns  Iteration: 0  Instance: /proc_hier_bench File: proc_hier_bench.v Line: 152
-# ** Error: (vsim-3043) Unresolved reference to 'halt' in DUT.p0.memory0.halt.
-#    Time: 0 ns  Iteration: 0  Instance: /proc_hier_bench File: proc_hier_bench.v Line: 152
-# ** Warning: (vsim-3008) [CNNODP] - Component name (memRead) is not on a downward path.
-#    Time: 0 ns  Iteration: 0  Instance: /proc_hier_bench File: proc_hier_bench.v Line: 140
-# ** Error: (vsim-3043) Unresolved reference to 'memRead' in DUT.p0.memory0.memRead.
-#    Time: 0 ns  Iteration: 0  Instance: /proc_hier_bench File: proc_hier_bench.v Line: 140
-# ** Warning: (vsim-3008) [CNNODP] - Component name (memReadorWrite) is not on a downward path.
-#    Time: 0 ns  Iteration: 0  Instance: /proc_hier_bench File: proc_hier_bench.v Line: 143
-# ** Error: (vsim-3043) Unresolved reference to 'memReadorWrite' in DUT.p0.memory0.memReadorWrite.
-#    Time: 0 ns  Iteration: 0  Instance: /proc_hier_bench File: proc_hier_bench.v Line: 143
-# ** Error: (vsim-3063) Port 'PC' not found in the connected module (4th connection).
-#    Time: 0 ns  Iteration: 0  Instance: /proc_hier_bench/DUT/p0/fetch0 File: proc.v Line: 71
-# ** Error (suppressible): (vsim-3053) Illegal output or inout port connection for port 'err'.
-#    Time: 0 ns  Iteration: 0  Instance: /proc_hier_bench/DUT/p0/fetch0 File: proc.v Line: 71
-# ** Error: (vsim-3063) Port 'writeData' not found in the connected module (3rd connection).
-#    Time: 0 ns  Iteration: 0  Instance: /proc_hier_bench/DUT/p0/decode0/regFile0 File: decode.v Line: 53
-# ** Error: (vsim-3063) Port 'writeRegSel' not found in the connected module (7th connection).
-#    Time: 0 ns  Iteration: 0  Instance: /proc_hier_bench/DUT/p0/decode0/regFile0 File: decode.v Line: 53
-# Error loading design
-# End time: 15:43:44 on Oct 22,2024, Elapsed time: 0:00:00
-# Errors: 8, Warnings: 4
+# ** Warning: (vsim-2685) [TFMPC] - Too few port connections for 'MEMORY'.  Expected 7, found 6.
+#    Time: 0 ns  Iteration: 0  Instance: /proc_hier_bench/DUT/p0/MEMORY File: proc.v Line: 86
+# ** Warning: (vsim-3722) proc.v(86): [TFMPC] - Missing connection for port 'halt'.
+# log -howmany -rec /* 
+# 1236
+#  run -all
+# Hello world...simulation starting
+# See verilogsim.log and verilogsim.trace for output
+# hmm....more than 100004 cycles of simulation...error?
+# 
+# ** Note: $finish    : clkrst.v(48)
+#    Time: 10000400 ns  Iteration: 1  Instance: /proc_hier_bench/DUT/c0
+# End time: 16:58:49 on Oct 22,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 2

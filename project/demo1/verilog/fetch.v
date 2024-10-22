@@ -8,7 +8,7 @@
 module fetch ( input wire clk, 
                input wire rst, 
                input wire halt, 
-               input wire [15:0]  pcCurrent, 
+               input wire [15:0]  PC, 
                output wire [15:0]  next_pc, 
                output wire [15:0]  instr, 
                output wire err);
@@ -25,7 +25,7 @@ module fetch ( input wire clk,
 
    //want to use a latch for the pc to hold value
    wire [15:0]pc_latch;
-   register PCBLOCK(.clk(clk), .rst(rst), .data_in(pcCurrent), .data_out(pc_latch), .write_en(1'b1), .err(err));
+   register PCBLOCK(.clk(clk), .rst(rst), .data_in(PC), .data_out(pc_latch), .write_en(1'b1), .err(err));
 
    //increment pc by two
    cla_16b ADDTWO(.sum(next_pc), .c_out(sum_cout), .a(pc_latch), .b(16'h0002), .c_in(1'b0));

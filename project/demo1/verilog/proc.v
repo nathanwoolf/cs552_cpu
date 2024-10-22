@@ -68,24 +68,24 @@ module proc (/*AUTOARG*/
    wire [15:0] specOps;
 
    // instantiate fetch module
-   fetch fetch0(.clk(clk), .rst(rst), .halt(halt), .PC(PC), .next_pc(next_pc), 
-               .instr(instr), .err(err));
+   fetch FETCH(.clk(clk), .rst(rst), .halt(halt), .PC(PC), .next_pc(next_pc), 
+               .instr(instr), .err());
 
-   decode decode0( .clk(clk), .rst(rst), .instr(instr), .writeData(writeData), 
+   decode DECODE( .clk(clk), .rst(rst), .instr(instr), .writeData(writeData), 
                   .memWrite(memWrite), .jump(jump), .immSrc(immSrc), .brControl(brControl), 
                   .aluOp(aluOp), .invA(invA), .invB(invB), .cin(cin), .BTR(BTR), .setIf(setIf), 
                   .aluA(aluA), .aluB(aluB), .imm11_ext(imm11_ext), .imm8_ext(imm8_ext), 
                   .read2Data(read2Data)); 
 
-   execute execute0( .clk(clk), .rst(rst), .PC(PC), .aluA(aluA), .aluB(aluB), 
+   execute EXECUTE( .clk(clk), .rst(rst), .PC(PC), .aluA(aluA), .aluB(aluB), 
                      .invA(invA), .invB(invB), .cin(cin), .aluOp(aluOp), .immSrc(immSrc), 
                      .jump(jump), .imm11_ext(imm11_ext), .imm8_ext(imm8_ext), 
                      .read2Data(read2Data), .BTR_cs(BTR_cs), .STU(STU), .next_pc(next_pc), .aluOut(aluOut), 
                      .writeData(writeData), .specOps(specOps), .brControl(brControl));
 
-   memory memory0( .clk(clk), .rst(rst), .memWrite(memWrite), .aluResult(aluOut), .writeData(writeData), .readData(readData));
+   memory MEMORY( .clk(clk), .rst(rst), .memWrite(memWrite), .aluOut(aluOut), .writeData(writeData), .readData(readData));
 
-   wb writeback0( .regSrc(regSrc), .PC(PC), .readData(readData), .aluOut(aluOut), .specOps(specOps), .writeData(writeData));
+   wb WRITEBACK( .regSrc(regSrc), .PC(PC), .readData(readData), .aluOut(aluOut), .specOps(specOps), .writeData(writeData));
 
    
 endmodule // proc
