@@ -59,10 +59,15 @@ module proc (/*AUTOARG*/
                read2Data;
 
    // ---------- execute I/O ----------
+   wire [15:0]aluOut, writeData, secOps;
+   wire BTR_cs;
+
+   // ---------- memory I/O ----------
+   wire [15:0]readData;
 
 
    // instantiate fetch module
-   fetch FETCH(.clk(clk), .rst(rst), .halt(halt), .pc(pc), .next_pc(next_pc), 
+   fetch FETCH(.clk(clk), .rst(rst), .halt(halt), .PC(PC), .next_pc(next_pc), 
                .instr(instr), .err(err));
 
    decode DECODE( .clk(clk), .rst(rst), .instr(instr), .writeData(writeData), 
@@ -74,8 +79,12 @@ module proc (/*AUTOARG*/
    execute EXECUTE ( .clk(clk), .rst(rst), .PC(PC), .aluA(aluA), .aluB(aluB), 
                      .invA(invA), invB(invB), .cin(cin), .aluOp(aluOp), .immSrc(immSrc), 
                      .jump(jump), .imm11_ext(imm11_ext), .imm8_ext(imm8_ext), 
-                     .read2Data(read2Data), .BTR_cs(BTR_cs), .STU(STU), .aluOut(aluOut), 
+                     .read2Data(read2Data), .BTR_cs(BTR_cs), .STU(STU), .next_pc(next_pc), .aluOut(aluOut), 
                      .writeData(writeData), .specOps(specOps), .calcPC(calcPC));
+
+   memory MEMORY ( .clk(clk), .rst(rst), .memWrite(memWrite), .aluOut(aluOut), .writeDate(writeData), .readData(readData));
+
+   wb WRITEBACK ( .regSrc(regSrc), .PC(PC), .readData(readData), .aluOut(aluOut), .specOps(specOps), .writeData(writeData));
 
    
 endmodule // proc
