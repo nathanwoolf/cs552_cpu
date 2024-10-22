@@ -5,13 +5,13 @@
    Description     : This is the module for the overall decode stage of the processor.
 */
 `default_nettype none
-module decode ( input   [4:0] opcode, 
-                input   [1:0] r_typeALU
+module control ( input   wire [4:0] opcode, 
+                input   wire [1:0] r_typeALU,
                 output  reg [1:0] aluSrc, 
                 output  reg zeroExt, 
                 output  reg [1:0]regSrc,
                 output  reg regWrite,
-                output  reg regDest, 
+                output  reg [1:0]regDest, 
                 output  reg memWrite, 
                 output  reg jump, 
                 output  reg immSrc, 
@@ -20,7 +20,7 @@ module decode ( input   [4:0] opcode,
                 output  reg invA, 
                 output  reg invB, 
                 output  reg cin, 
-                output  reg STU
+                output  reg STU,
                 output  reg BTR,
                 output  reg setIf);
 
