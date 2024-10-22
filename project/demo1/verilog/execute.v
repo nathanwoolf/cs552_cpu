@@ -22,6 +22,7 @@ module execute (  input wire clk,
                   input wire [15:0]read2Data,
                   input wire BTR_cs,
                   input wire STU,
+                  input wire LBI,
                   output wire [15:0] next_pc,
                   output wire [15:0]aluOut,
                   output wire [15:0]writeData,
@@ -42,7 +43,8 @@ module execute (  input wire clk,
    assign SLBI = { aluA[0], aluA[1], aluA[2], aluA[3], aluA[4], aluA[5], aluA[6], aluA[6], aluA[7],
             aluA[8], aluA[9], aluA[10], aluA[11], aluA[12], aluA[13], aluA[14], aluA[15]};
 
-   assign specOps = (BTR_cs) ? BTR : SLBI;
+   assign specOps = (LBI) ? imm8_ext : 
+                    (BTR_cs) ? BTR : SLBI;
 
    assign writeData = (STU) ? read2Data : aluB; 
 

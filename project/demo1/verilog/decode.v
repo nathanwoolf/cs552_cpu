@@ -9,7 +9,9 @@ module decode (input wire clk,
                input wire rst, 
                input wire [15:0]instr,
                input wire [15:0]writeData,  
-               output wire memWrite,           
+               output wire memWrite,
+               output wire memRead,       
+               output wire [1:0]regSrc,    
                output wire jump,               // branch half of execute
                output wire immSrc,             // to go to branch part of execute
                output wire [2:0]brControl,
@@ -17,8 +19,11 @@ module decode (input wire clk,
                output wire invA, 
                output wire invB, 
                output wire cin,
+               output wire STU,
                output wire BTR,
-               output wire setIf, 
+               output wire LBI,
+               output wire setIf,
+               output wire halt, 
                output wire [15:0]aluA, 
                output wire [15:0]aluB, 
                output wire [15:0]imm11_ext, 
@@ -27,22 +32,16 @@ module decode (input wire clk,
    
    // control module signals
    wire [1:0]aluSrc;
-   wire [1:0]regSrc;
    wire zeroExt; 
    wire [1:0]regDest; 
    wire regWrite; 
-   wire STU; 
-   
+
    //4-1 mux controlled by regdest -> decides what our write register is
    // instatiate control module
    control CONTROLSIGS(.opcode(instr[15:11]), .r_typeALU(instr[1:0]), .aluSrc(aluSrc), .zeroExt(zeroExt), 
-                        .regSrc(regSrc), .regWrite(regWrite), .regDest(regDest),
-                        .memWrite(memWrite), .jump(jump), .immSrc(immSrc), .brControl(brControl), 
-                        .aluOp(aluOp), .invA(invA), .invB(invB), .cin(cin), .STU(STU), .BTR(BTR), .setIf(setIf)); 
-
-   //need to flop regWrite so signal is still high when WB happens
-   wire regWrite_latch; 
-   dff REGWRITE_LATCH(.d(regWrite), .q(regWrite_latch), .clk(clk), .rst(rst)); // TODO ask nathan about latch
+                        .regSrc(regSrc), .regWrite(regWrite), .regDest(regDest), .memWrite(memWrite), .memRead(memRead),
+                         .jump(jump), .immSrc(immSrc), .brControl(brControl), .aluOp(aluOp), .invA(invA), .invB(invB), 
+                         .cin(cin), .STU(STU), .BTR(BTR), .LBI(LBI), .setIf(setIf), .halt(halt)); 
    
    // 4 to 1 mux to control write data reg
    wire [2:0]writeReg;
@@ -51,7 +50,7 @@ module decode (input wire clk,
    // outputs from reg file go to alusrc1 and alusrc2 -> need to mux read2Data with other signals
    wire err; 
    regFile REGFILE(.read1RegSel(instr[10:8]), .read2RegSel(instr[7:5]), .writeData(writeData), 
-                        .writeEn(regWrite_latch), .read1Data(aluA), .read2Data(read2Data), .writeRegSel(writeReg),
+                        .writeEn(regWrite), .read1Data(aluA), .read2Data(read2Data), .writeRegSel(writeReg),
                         .err(err), .clk(clk), .rst(rst)); 
 
    // sign extend or zero extend our immediate values form instruction bits

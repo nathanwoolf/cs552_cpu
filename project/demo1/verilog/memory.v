@@ -9,6 +9,7 @@
 module memory (input wire clk,
                input wire rst,
                input wire memWrite,
+               input wire memRead,
                input wire [15:0]aluOut,
                input wire [15:0]writeData,
                input wire halt,
@@ -21,8 +22,11 @@ module memory (input wire clk,
    // enable = memWrite
    // memRead?
 
+   wire enable;
+   assign enable = (~halt) & memRead;
+
    memory2c instruction_mem( .data_out(readData), .data_in(writeData), .addr(aluOut), 
-                              .enable(1'b0), .wr(memWrite), .createdump(1'b0), 
+                              .enable(enable), .wr(memWrite), .createdump(halt), 
                               .clk(clk), .rst(rst)); 
 
 
