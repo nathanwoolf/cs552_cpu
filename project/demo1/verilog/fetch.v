@@ -9,7 +9,7 @@ module fetch ( input wire clk,
                input wire rst, 
                input wire halt, 
                input wire [15:0]  PC, 
-               output wire [15:0]  next_pc, 
+               output wire [15:0]  pc_inc, 
                output wire [15:0]  instr, 
                output wire err);
 
@@ -26,7 +26,7 @@ module fetch ( input wire clk,
    register PCBLOCK(.clk(clk), .rst(rst), .data_in(PC), .data_out(pc_latch), .write_en(1'b1), .err(err));
 
    //increment pc by two
-   cla_16b ADDTWO(.sum(next_pc), .c_out(sum_cout), .a(pc_latch), .b(16'h0002), .c_in(1'b0)); // TODO c_out is err?
+   cla_16b ADDTWO(.sum(pc_inc), .c_out(sum_cout), .a(pc_latch), .b(16'h0002), .c_in(1'b0)); // TODO c_out is err?
 
    // instantiate program memory given to us in memory2c.v
    // high level description: 

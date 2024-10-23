@@ -25,7 +25,7 @@ module execute (  input wire clk,
                   input wire LBI,
                   output wire [15:0] next_pc,
                   output wire [15:0]aluOut,
-                  output wire [15:0]writeData,
+                  output wire [15:0]outData,
                   output wire [15:0]specOps);
 
    // TODO: branch logic
@@ -46,7 +46,7 @@ module execute (  input wire clk,
    assign specOps = (LBI) ? imm8_ext : 
                     (BTR_cs) ? BTR : SLBI;
 
-   assign writeData = (STU) ? read2Data : aluB; 
+   assign outData = (STU) ? read2Data : aluB; 
 
    // JmpSrc Mux
    wire [15:0]JmpSrc;

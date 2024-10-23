@@ -28,7 +28,8 @@ module proc (/*AUTOARG*/
    wire halt;  
    wire [15:0] instr, 
                PC, 
-               next_pc;
+               next_pc,
+               pc_inc;
    
    // ---------- decode I/O ----------
    wire [4:0]  opcode; 
@@ -60,7 +61,7 @@ module proc (/*AUTOARG*/
                read2Data;
 
    // ---------- execute I/O ----------
-   wire [15:0]aluOut, writeData, secOps;
+   wire [15:0]aluOut, writeData, secOps, outData;
 
    // ---------- memory I/O ----------
    wire [15:0]readData;
@@ -69,7 +70,7 @@ module proc (/*AUTOARG*/
    wire [15:0] specOps;
 
    // instantiate fetch module
-   fetch FETCH(.clk(clk), .rst(rst), .halt(halt), .PC(PC), .next_pc(next_pc), 
+   fetch FETCH(.clk(clk), .rst(rst), .halt(halt), .PC(next_pc), .pc_inc(pc_inc), 
                .instr(instr), .err());
 
    decode DECODE( .clk(clk), .rst(rst), .instr(instr), .writeData(writeData), 
@@ -78,15 +79,15 @@ module proc (/*AUTOARG*/
                   .aluA(aluA), .aluB(aluB), .imm11_ext(imm11_ext), .imm8_ext(imm8_ext), 
                   .read2Data(read2Data), .halt(halt)); 
 
-   execute EXECUTE( .clk(clk), .rst(rst), .PC(PC), .aluA(aluA), .aluB(aluB), 
+   execute EXECUTE( .clk(clk), .rst(rst), .PC(pc_inc), .aluA(aluA), .aluB(aluB), 
                      .invA(invA), .invB(invB), .cin(cin), .aluOp(aluOp), .immSrc(immSrc), 
                      .jump(jump), .imm11_ext(imm11_ext), .imm8_ext(imm8_ext), 
                      .read2Data(read2Data), .BTR_cs(BTR), .STU(STU), .LBI(LBI), .next_pc(next_pc), .aluOut(aluOut), 
-                     .writeData(writeData), .specOps(specOps), .brControl(brControl));
+                     .outData(outData), .specOps(specOps), .brControl(brControl));
 
-   memory MEMORY( .clk(clk), .rst(rst), .memWrite(memWrite), .memRead(memRead), .aluOut(aluOut), .writeData(writeData), .readData(readData), .halt(halt));
+   memory MEMORY( .clk(clk), .rst(rst), .memWrite(memWrite), .memRead(memRead), .aluOut(aluOut), .writeData(outData), .readData(readData), .halt(halt));
 
-   wb WRITEBACK( .regSrc(regSrc), .PC(PC), .readData(readData), .aluOut(aluOut), .specOps(specOps), .writeData(writeData));
+   wb WRITEBACK( .regSrc(regSrc), .PC(pc_inc), .readData(readData), .aluOut(aluOut), .specOps(specOps), .writeData(writeData));
 
    
 endmodule // proc
