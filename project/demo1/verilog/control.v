@@ -57,13 +57,13 @@ always @(*) begin
         // Arithmatic with immediate
         5'b010??: begin 
             aluSrc = 2'b10;
-            zeroExt = (opcode[2]) ? 1 : 0;
+            zeroExt = opcode[1] & opcode[0];
             regSrc = 2'b10;
             regWrite = 1'b1; 
             aluOp = (~opcode[1]) ? 3'b000 : opcode[2:0];
-            invA = (~opcode[1] & opcode[0]) ? 1'b1 : 1'b0;
-            invB = (opcode[1] & opcode[0]) ? 1'b1 : 1'b0;
-            cin = (~opcode[1] & opcode[0]) ? 1'b1 : 1'b0;
+            invA = ~opcode[1] & opcode[0];
+            invB = opcode[1] & opcode[0];
+            cin = ~opcode[1] & opcode[0];
         end
 
         // Shift with immediate
