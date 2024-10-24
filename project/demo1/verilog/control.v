@@ -15,9 +15,11 @@ module control (input   wire [4:0] opcode,
                 output  reg memWrite,
                 output  reg memRead,
                 output  reg halt, 
-                output  reg jump, 
+                output  reg aluJump, 
+                output  reg jump,
                 output  reg immSrc, 
                 output  reg [2:0]brControl,
+                output  reg [1:0]setControl,
                 output  reg [2:0]aluOp, 
                 output  reg invA, 
                 output  reg invB, 
@@ -36,9 +38,11 @@ always @(*) begin
         regWrite = 1'b0; 
         memWrite = 1'b0; 
         memRead = 1'b0;
+        aluJump = 1'b0;
         jump = 1'b0;
         immSrc = 1'b0; 
         brControl = 3'b000;
+        setControl = 2'b00;
 
         aluOp = 3'b000;
         invA = 1'b0;
@@ -54,10 +58,10 @@ always @(*) begin
 
     casex (opcode)
 
-        // Arithmatic with immediate
+        // Arithmetic with immediate
         5'b010??: begin 
             aluSrc = 2'b10;
-            zeroExt = opcode[1] & opcode[0];
+            zeroExt = opcode[1];
             regSrc = 2'b10;
             regWrite = 1'b1; 
             aluOp = (~opcode[1]) ? 3'b000 : opcode[2:0];
@@ -78,11 +82,12 @@ always @(*) begin
         5'b10000: begin 
             aluSrc = 2'b10; 
             memWrite = 1'b1;
+            STU = 1'b1; // TODO rename?
         end
 
         // LD
         5'b10001: begin 
-            aluSrc = 2'b01; 
+            aluSrc = 2'b10; 
             regSrc = 2'b01;
             regWrite = 1'b1; 
             memRead = 1'b1;
@@ -95,6 +100,7 @@ always @(*) begin
             regSrc = 2'b10;
             regWrite = 1'b1; 
             memWrite = 1'b1;
+            STU = 1'b1;
         end
 
         // BTR
@@ -105,7 +111,7 @@ always @(*) begin
             BTR = 1'b1;
         end
 
-        // Arithmatic with registers
+        // Arithmetic with registers
         5'b11011: begin 
             regDest = 2'b10;
             regSrc = 2'b10;
@@ -127,19 +133,19 @@ always @(*) begin
 
         // Set
         5'b111??: begin 
-            aluSrc = 2'b11;
             regDest = 2'b10;
-            regSrc = 2'b10;
+            regSrc = 2'b11;
             regWrite = 1'b1; 
             invB = (opcode[0] & opcode[1]) ? 1'b0 : 1'b1;
             cin = (opcode[0] & opcode[1]) ? 1'b0 : 1'b1;
             setIf = 1'b1;
+            setControl = opcode[1:0];
         end
 
         // Branch
         5'b011??: begin 
-            aluSrc = 2'b10;
-            zeroExt = 1'b1;
+            aluSrc = 2'b11;
+            immSrc = 1'b1;
             brControl = {1'b1, opcode[1:0]};
         end
 
@@ -153,19 +159,21 @@ always @(*) begin
         end
 
         // SLBI
-        5'b11000: begin 
-            zeroExt = 1'b1;
-            regDest = 2'b11;
+        5'b10010: begin 
+            regDest = 2'b01;
             regSrc = 2'b11;
             regWrite = 1'b1;
         end
+
 
         // Jump
         5'b001??: begin 
             regDest = 2'b11;
             regWrite = opcode[1];
-            jump = 1'b1;
+            aluJump = opcode[0];
             immSrc = opcode[0]; 
+            jump = 1'b1;
+            aluSrc = 1'b1;
         end
 
         // Halt

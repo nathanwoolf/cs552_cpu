@@ -15,8 +15,11 @@ module execute (  input wire clk,
                   input wire cin,                 // ..
                   input wire [2:0]aluOp,          // ----------------------------------------
                   input wire immSrc,              // -------------- br/jmp sigs -------------
+                  input wire aluJump,
                   input wire jump,                //
-                  input wire [2:0]brControl,      // ..
+                  input wire setIf,               //
+                  input wire [2:0]brControl,
+                  input wire [1:0]setControl,      // ..
                   input wire [15:0]imm11_ext,     // ..
                   input wire [15:0]imm8_ext,      // ----------------------------------------
                   input wire [15:0]read2Data,
@@ -29,46 +32,55 @@ module execute (  input wire clk,
                   output wire [15:0]specOps);
 
    // TODO: branch logic
-   wire ZF, SF, OF, CF, brSel;
+   wire ZF, SF, OF, CF, brSel, brOrJmp;
 
-   branch_cmd BRANCHCOMMAND(.brControl(brControl), .ZF(ZF), .SF(SF), .OF(OF),  .CF(CF), .brSel(brSel));
+   assign brOrJmp = brSel | jump;
+
+   branch_cmd BRANCHCOMMAND(.brControl(brControl), .ZF(ZF), .SF(SF), .brSel(brSel));
 
 
    alu ALU( .InA(aluA), .InB(aluB), .Cin(cin), .Oper(aluOp), .invA(invA), 
-            .invB(invB), .sign(1'b1), .Out(aluOut), .Ofl(OF), .Zero(ZF));
+            .invB(invB), .sign(1'b1), .Out(aluOut), .Ofl(OF), .Zero(ZF), .SF(SF), .CF(CF));
 
    // TODO: set if equal/less than/produce carry out logic -> mux with alu out based on setIf control sig
    wire [15:0]BTR, SLBI; 
-   assign BTR = {aluA[7:0], imm8_ext[7:0]}; 
-   assign SLBI = { aluA[0], aluA[1], aluA[2], aluA[3], aluA[4], aluA[5], aluA[6], aluA[6], aluA[7],
+   assign SLBI = {aluA[7:0], imm8_ext[7:0]}; 
+   assign BTR = { aluA[0], aluA[1], aluA[2], aluA[3], aluA[4], aluA[5], aluA[6], aluA[7],
             aluA[8], aluA[9], aluA[10], aluA[11], aluA[12], aluA[13], aluA[14], aluA[15]};
 
-   assign specOps = (LBI) ? imm8_ext : 
+   wire [15:0] specOut;
+   assign specOut = (LBI) ? imm8_ext : 
                     (BTR_cs) ? BTR : SLBI;
 
    assign outData = (STU) ? read2Data : aluB; 
 
+   assign specOps = (setIf) ? 
+                           (setControl == 2'b00) ? 
+                                 (ZF) ? 16'h0001 : 16'h0000 :
+                           (setControl == 2'b01) ? 
+                                 (SF) ? 16'h0001 : 16'h0000 :
+                           (setControl == 2'b10) ? 
+                                 (SF | ZF) ? 16'h0001 : 16'h0000 :
+                           (CF) ? 
+                                 16'h0001 : 16'h0000 
+                     : specOut;
+
    // JmpSrc Mux
    wire [15:0]JmpSrc;
-   assign JmpSrc = (immSrc) ? imm8_ext : {imm11_ext[14:0], 1'b0};
+   // assign JmpSrc = (immSrc) ? imm8_ext : {imm11_ext[15:1], 1'b0};
+   assign JmpSrc = (immSrc) ? imm8_ext : imm11_ext[15:0];
 
 
    // JmpSel Mux
    wire [15:0]JmpVal;
-   alu ADDER(.InA(PC), .InB(JmpSrc), .Cin(1'b0), .Oper(3'b000), .invA(1'b0), .invB(1'b0), .sign(1'b0), .Out(JmpVal), .Ofl(), .Zero());
+   alu ADDER(.InA(PC), .InB(JmpSrc), .Cin(1'b0), .Oper(3'b000), .invA(1'b0), .invB(1'b0), .sign(1'b0), .Out(JmpVal), .Ofl(), .Zero(), .SF(), .CF());
 
-   wire [15:0]JmpSel;
+   wire [15:0]BrVal;
 
-   assign JmpSel = (jump) ? JmpVal : PC;   
+   assign BrVal = (brOrJmp) ? JmpVal : PC;   
 
-   // BrSel Mux
-   assign next_pc = (brSel) ? aluOut : JmpSel;
-
-
-
-
-
-
+   // brOrJmp Mux
+   assign next_pc = (aluJump) ? aluOut : BrVal;
 
 endmodule
 `default_nettype wire

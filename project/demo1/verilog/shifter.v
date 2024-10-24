@@ -25,12 +25,12 @@ module shifter (In, ShAmt, Oper, Out);
 
     rotate_lft r_left(.In(In), .ShAmt(ShAmt), .Out(op_00)); 
     shift_lft s_left(.In(In), .ShAmt(ShAmt), .Out(op_01));
-    shift_rght_arithmetic s_r_a(.In(In), .ShAmt(ShAmt), .Out(op_10));
+    shift_rght_arithmetic s_r_a(.In(In), .ShAmt(ShAmt), .Out(op_10));   //rotate right
     shift_rght_logical s_r_l(.In(In), .ShAmt(ShAmt), .Out(op_11));
 
-    assign Out =    (Oper == 2'b00) ? op_00 : 
-                    (Oper == 2'b01) ? op_01 : 
-                    (Oper == 2'b10) ? op_10 : 
-                    (Oper == 2'b11) ? op_11 : 
+    assign Out =    (Oper == 2'b00) ? op_00 :           //rotate left
+                    (Oper == 2'b01) ? op_01 :           //shift left logical
+                    (Oper == 2'b10) ? op_10 :           //rotate right
+                    (Oper == 2'b11) ? op_11 :           //shift right logical
                     16'h0000; 
 endmodule

@@ -82,6 +82,9 @@ module proc_hier_bench();
                         PC,
                         WriteRegister,
                         WriteData );
+               // $fdisplay(trace_file,"BTR: %1d SetIf: %1d LBI: %1d aluA: %16x imm8_ext: %16x specOut: %16x specOps: %16x",
+               //          BTR, SetIf, LBI,
+               //          aluA, imm8_ext, specOut, specOps);
             end
          end else if (Halt) begin
             $fdisplay(sim_log_file, "SIMLOG:: Processor halted\n");
@@ -139,6 +142,7 @@ module proc_hier_bench();
    
    assign MemRead =  DUT.p0.MEMORY.memRead;
    // Is memory being read, one bit signal (1 means yes, 0 means no)
+   // TODO We do not use memRead currently.
    
    assign MemWrite = (DUT.p0.MEMORY.enable & DUT.p0.MEMORY.memWrite);
    // Is memory being written to (1 bit signal)
@@ -155,6 +159,18 @@ module proc_hier_bench();
    /* Add anything else you want here */
    wire RegSrc;
    assign RegSrc = DUT.p0.WRITEBACK.regSrc;
+
+   wire BTR, SetIf, LBI;
+   wire [15:0]aluA, imm8_ext, specOut, specOps;
+
+   // assign BTR = DUT.p0.EXECUTE.BTR_cs;
+   // assign SetIf = DUT.p0.EXECUTE.setIf;
+   // assign LBI = DUT.p0.EXECUTE.LBI;
+   // assign aluA = DUT.p0.EXECUTE.aluA;
+   // assign imm8_ext = DUT.p0.EXECUTE.imm8_ext;
+   // assign specOut = DUT.p0.EXECUTE.specOut;
+   // assign specOps = DUT.p0.EXECUTE.specOps;
+   
 
    
 endmodule

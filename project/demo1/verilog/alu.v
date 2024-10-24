@@ -9,7 +9,7 @@
     of the operation, as well as drive the output signals Zero and Overflow
     (OFL).
 */
-module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl);
+module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl, SF, CF);
 
     parameter OPERAND_WIDTH = 16;    
     parameter NUM_OPERATIONS = 3;
@@ -24,6 +24,8 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl);
     output [OPERAND_WIDTH -1:0] Out ; // Result of computation
     output                      Ofl ; // Signal if overflow occured
     output                      Zero; // Signal if Out is 0
+    output                      SF;   // Signal is negative (signed)
+    output                      CF; // Carry occurred
 
     /* YOUR CODE HERE */
     wire [15:0] A, B, shifter_out, alu_out, A_xor_B, A_and_B; 
@@ -48,4 +50,6 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl);
                     16'h0000;           //default case - should never happen;
 
     assign Zero = ~|Out;
+    assign SF = sign & Out[15];
+    assign CF = alu_Cout;
 endmodule

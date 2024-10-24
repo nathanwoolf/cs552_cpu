@@ -13,7 +13,7 @@ module wb (  input wire [1:0]regSrc,
              output wire [15:0]writeData);
 
    // 4:1 Mux selecting write back data
-   mux4_1_16b ALUSOURCE(.sel(regSrc), .inp0(PC), .inp1(readData), .inp2(aluOut), .inp3(specOps), .out(writeData));
+   mux4_1_16b WRITEBACK(.sel(regSrc), .inp0(PC), .inp1(readData), .inp2(aluOut), .inp3(specOps), .out(writeData));
 
 endmodule
 `default_nettype wire

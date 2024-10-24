@@ -12,9 +12,11 @@ module decode (input wire clk,
                output wire memWrite,
                output wire memRead,       
                output wire [1:0]regSrc,    
-               output wire jump,               // branch half of execute
+               output wire aluJump,               // branch half of execute
+               output wire jump,
                output wire immSrc,             // to go to branch part of execute
                output wire [2:0]brControl,
+               output wire [1:0]setControl,
                output wire [2:0]aluOp, 
                output wire invA, 
                output wire invB, 
@@ -40,8 +42,8 @@ module decode (input wire clk,
    // instatiate control module
    control CONTROLSIGS(.opcode(instr[15:11]), .r_typeALU(instr[1:0]), .aluSrc(aluSrc), .zeroExt(zeroExt), 
                         .regSrc(regSrc), .regWrite(regWrite), .regDest(regDest), .memWrite(memWrite), .memRead(memRead),
-                         .jump(jump), .immSrc(immSrc), .brControl(brControl), .aluOp(aluOp), .invA(invA), .invB(invB), 
-                         .cin(cin), .STU(STU), .BTR(BTR), .LBI(LBI), .setIf(setIf), .halt(halt)); 
+                         .aluJump(aluJump), .immSrc(immSrc), .brControl(brControl), .aluOp(aluOp), .invA(invA), .invB(invB), 
+                         .cin(cin), .STU(STU), .BTR(BTR), .LBI(LBI), .setIf(setIf), .halt(halt), .setControl(setControl), .jump(jump)); 
    
    // 4 to 1 mux to control write data reg
    wire [2:0]writeReg;
