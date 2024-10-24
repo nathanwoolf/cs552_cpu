@@ -7,6 +7,6 @@ done
 
 rm "all.list";
 for a in *.asm; do
-    echo "/u/k/a/karu/"$base/$a >> all.list;
+    echo $base/$a >> all.list;
 done
 chmod -R o+r *

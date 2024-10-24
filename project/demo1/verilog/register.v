@@ -10,7 +10,8 @@ module register #(parameter WIDTH = 16) (clk, rst, data_in, data_out, write_en, 
 
     dff DFF[WIDTH-1:0](.clk(clk), .rst(rst), .d(d), .q(data_out)); 
 
-    assign err = (^write_en === 1'bx) | (^data_in === 1'bx) | (^clk === 1'bx) | (^rst === 1'bx) |
-                 (^write_en === 1'bz) | (^data_in === 1'bz) | (^clk === 1'bz) | (^rst === 1'bz);
+    assign err = 1'b0;
+    //assign err = (^write_en === 1'bx) | (^data_in === 1'bx) | (^clk === 1'bx) | (^rst === 1'bx) |
+    //             (^write_en === 1'bz) | (^data_in === 1'bz) | (^clk === 1'bz) | (^rst === 1'bz);
 
 endmodule

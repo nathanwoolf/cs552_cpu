@@ -33,7 +33,7 @@ module fetch ( input wire clk,
    //    read the instruction at pc to inst_fetch
    //    use halt bit to enable/dump memory file
    //    hard code write to zero (were only reading here)
-   memory2c instruction_mem(.data_out(instr), .data_in(16'b0), .addr(pc_latch), .enable(~halt), .wr(1'b0), .createdump(halt), .clk(clk), .rst(rst)); 
+   memory2c instruction_mem(.data_out(instr), .data_in(16'b0), .addr(pc_latch), .enable(1'b1), .wr(1'b0), .createdump(halt), .clk(clk), .rst(rst)); 
 
    
 endmodule

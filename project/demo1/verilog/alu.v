@@ -50,6 +50,7 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl, SF, CF);
                     16'h0000;           //default case - should never happen;
 
     assign Zero = ~|Out;
-    assign SF = sign & Out[15];
+    // assign SF = sign & Out[15];
+    assign SF = ((Ofl & (Out[15] ^ A[15]))) ? ~Out[15] : Out[15];
     assign CF = alu_Cout;
 endmodule

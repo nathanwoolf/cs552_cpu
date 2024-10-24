@@ -82,9 +82,7 @@ module proc_hier_bench();
                         PC,
                         WriteRegister,
                         WriteData );
-               // $fdisplay(trace_file,"BTR: %1d SetIf: %1d LBI: %1d aluA: %16x imm8_ext: %16x specOut: %16x specOps: %16x",
-               //          BTR, SetIf, LBI,
-               //          aluA, imm8_ext, specOut, specOps);
+
             end
          end else if (Halt) begin
             $fdisplay(sim_log_file, "SIMLOG:: Processor halted\n");
@@ -157,8 +155,6 @@ module proc_hier_bench();
    // Is processor halted (1 bit signal)
    
    /* Add anything else you want here */
-   wire RegSrc;
-   assign RegSrc = DUT.p0.WRITEBACK.regSrc;
 
    wire BTR, SetIf, LBI;
    wire [15:0]aluA, imm8_ext, specOut, specOps;
@@ -170,8 +166,13 @@ module proc_hier_bench();
    // assign imm8_ext = DUT.p0.EXECUTE.imm8_ext;
    // assign specOut = DUT.p0.EXECUTE.specOut;
    // assign specOps = DUT.p0.EXECUTE.specOps;
-   
 
+   wire RegSrc, RegDest, ImmSrc, BrOrJmp, AluJump;
+   assign RegSrc = DUT.p0.WRITEBACK.regSrc;
+   assign RegDest = DUT.p0.DECODE.regDest;
+   assign ImmSrc = DUT.p0.EXECUTE.immSrc;
+   assign BrOrJmp = DUT.p0.EXECUTE.brOrJmp;
+   assign AluJump = DUT.p0.EXECUTE.aluJump;
    
 endmodule
 `default_nettype wire

@@ -175,13 +175,15 @@ always @(*) begin
             jump = 1'b1;
             aluSrc = 1'b1;
         end
+        // TODO: NOP, SIIC, RTI
+        5'b00001: begin
+            halt = 1'b0;
+        end
 
         // Halt
         5'b00000: begin
             halt = 1'b1;
         end
-
-        // TODO: NOP, SIIC, RTI
 
     endcase 
 end 

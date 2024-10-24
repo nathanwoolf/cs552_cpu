@@ -26,8 +26,7 @@ module proc (/*AUTOARG*/
    
    // ---------- fetch I/O ----------
    wire halt;  
-   wire [15:0] instr, 
-               PC, 
+   wire [15:0] instr,  
                next_pc,
                pc_inc;
    
@@ -68,7 +67,6 @@ module proc (/*AUTOARG*/
    // ---------- memory I/O ----------
    wire [15:0]readData;
 
-
    wire [15:0] specOps;
 
    // instantiate fetch module
@@ -91,7 +89,6 @@ module proc (/*AUTOARG*/
 
    wb WRITEBACK( .regSrc(regSrc), .PC(pc_inc), .readData(readData), .aluOut(aluOut), .specOps(specOps), .writeData(writeData));
 
-   
 endmodule // proc
 `default_nettype wire
 // DUMMY LINE FOR REV CONTROL :0:
