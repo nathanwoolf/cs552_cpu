@@ -25,7 +25,7 @@ module shifter (In, ShAmt, Oper, Out);
 
     rotate_lft r_left(.In(In), .ShAmt(ShAmt), .Out(op_00)); 
     shift_lft s_left(.In(In), .ShAmt(ShAmt), .Out(op_01));
-    shift_rght_arithmetic s_r_a(.In(In), .ShAmt(ShAmt), .Out(op_10));   //rotate right
+    rotate_rght r_rght(.In(In), .ShAmt(ShAmt), .Out(op_10));   //rotate right
     shift_rght_logical s_r_l(.In(In), .ShAmt(ShAmt), .Out(op_11));
 
     assign Out =    (Oper == 2'b00) ? op_00 :           //rotate left

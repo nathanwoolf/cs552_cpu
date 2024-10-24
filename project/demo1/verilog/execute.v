@@ -68,7 +68,7 @@ module execute (  input wire clk,
    // JmpSrc Mux
    wire [15:0]JmpSrc;
    // assign JmpSrc = (immSrc) ? imm8_ext : {imm11_ext[15:1], 1'b0};
-   assign JmpSrc = (immSrc) ? imm8_ext : imm11_ext[15:0];
+   assign JmpSrc = (immSrc) ? imm8_ext : imm11_ext;
 
 
    // JmpSel Mux
