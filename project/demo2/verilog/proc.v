@@ -22,9 +22,73 @@ module proc (/*AUTOARG*/
    // As desribed in the homeworks, use the err signal to trap corner
    // cases that you think are illegal in your statemachines
    
-   
    /* your code here -- should include instantiations of fetch, decode, execute, mem and wb modules */
    
+   // ---------- fetch I/O ----------
+   wire halt;  
+   wire [15:0] instr,  
+               next_pc,
+               pc_inc;
+   
+   // ---------- decode I/O ----------
+   wire [4:0]  opcode; 
+   wire [1:0]  r_typeALU;
+
+   // control signals used outside of DECODE stage
+   wire [1:0]  aluSrc, 
+               regSrc,
+               setControl;
+   wire        zeroExt, 
+               regWrite, 
+               regDest, 
+               memWrite,
+               memRead, 
+               aluJump,
+               jump, 
+               immSrc, 
+               invA, 
+               invB, 
+               cin, 
+               STU, 
+               BTR, 
+               LBI,
+               setIf;
+   wire [2:0]  brControl, 
+               aluOp;
+   wire [15:0] aluA, 
+               aluB, 
+               imm11_ext, 
+               imm8_ext, 
+               read2Data;
+
+   // ---------- execute I/O ----------
+   wire [15:0]aluOut, writeData, secOps, outData;
+
+   // ---------- memory I/O ----------
+   wire [15:0]readData;
+
+   wire [15:0] specOps;
+
+   // instantiate fetch module
+   fetch FETCH(.clk(clk), .rst(rst), .halt(halt), .PC(next_pc), .pc_inc(pc_inc), 
+               .instr(instr), .err());
+
+   decode DECODE( .clk(clk), .rst(rst), .instr(instr), .writeData(writeData), 
+                  .memWrite(memWrite), .memRead(memRead), .aluJump(aluJump), .immSrc(immSrc), .brControl(brControl), .regSrc(regSrc), 
+                  .aluOp(aluOp), .invA(invA), .invB(invB), .cin(cin), .STU(STU), .BTR(BTR), .LBI(LBI), .setIf(setIf), 
+                  .aluA(aluA), .aluB(aluB), .imm11_ext(imm11_ext), .imm8_ext(imm8_ext), 
+                  .read2Data(read2Data), .halt(halt), .setControl(setControl), .jump(jump)); 
+
+   execute EXECUTE( .clk(clk), .rst(rst), .PC(pc_inc), .aluA(aluA), .aluB(aluB), 
+                     .invA(invA), .invB(invB), .cin(cin), .aluOp(aluOp), .immSrc(immSrc), 
+                     .aluJump(aluJump), .setIf(setIf), .imm11_ext(imm11_ext), .imm8_ext(imm8_ext), 
+                     .read2Data(read2Data), .BTR_cs(BTR), .STU(STU), .LBI(LBI), .next_pc(next_pc), .aluOut(aluOut), 
+                     .outData(outData), .specOps(specOps), .brControl(brControl), .setControl(setControl), .jump(jump));
+
+   memory MEMORY( .clk(clk), .rst(rst), .memWrite(memWrite), .memRead(memRead), .aluOut(aluOut), .writeData(outData), .readData(readData), .halt(halt));
+
+   wb WRITEBACK( .regSrc(regSrc), .PC(pc_inc), .readData(readData), .aluOut(aluOut), .specOps(specOps), .writeData(writeData));
+
 endmodule // proc
 `default_nettype wire
 // DUMMY LINE FOR REV CONTROL :0:
