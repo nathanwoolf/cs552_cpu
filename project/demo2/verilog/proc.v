@@ -115,7 +115,7 @@ module proc (/*AUTOARG*/
                DX_imm8_ext, 
                DX_read2Data;    
 
-   //need to propogate pc related signals through remaining blocks
+   //propogate pc related signals
    wire [15:0] DX_instr, 
                DX_next_pc, 
                DX_pc_inc;    
@@ -123,14 +123,19 @@ module proc (/*AUTOARG*/
    // ---------- execute I/O ----------
    wire [15:0] aluOut, 
                writeData, 
-               secOps, 
+               specOps, 
                outData;
 
    //  ---------- XM_ latch singals ---------- 
    wire [15:0] XM_aluOut, 
                XM_writeData, 
-               XM_secOps, 
-               XM_outData;
+               XM_specOps, 
+               XM_outData;       //turns into writeData in WB
+
+   //propogate pc related signals
+   wire [15:0] XM_instr, 
+               XM_next_pc, 
+               XM_pc_inc;    
    wire        XM_memWrite, 
                XM_memRead, 
                XM_halt;
@@ -147,7 +152,12 @@ module proc (/*AUTOARG*/
                MW_readData, 
                MW_aluOut,
                MW_specOps, 
-               MW_writeData;
+               MW_writeData; 
+
+   //propogate pc related signals
+   wire [15:0] MW_instr, 
+               MW_next_pc, 
+               MW_pc_inc;    
 
    // instantiate fetch module
    fetch FETCH(.clk(clk), .rst(rst), .halt(halt), 
