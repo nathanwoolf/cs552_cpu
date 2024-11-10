@@ -33,6 +33,8 @@ module proc (/*AUTOARG*/
     * propogate through each intermediate latch 
     * 
     * prepend the transisition to singal name e.g. FD_ for latch between fetch and decode
+    *
+    * each stage should should hold the outputs from the first letter and then inputs to the second 
     * 
     * take regSrc as an example: 
     *    produced in decode and isnt consumed until Writeback
@@ -152,12 +154,7 @@ module proc (/*AUTOARG*/
                MW_readData, 
                MW_aluOut,
                MW_specOps, 
-               MW_writeData; 
-
-   //propogate pc related signals
-   wire [15:0] MW_instr, 
-               MW_next_pc, 
-               MW_pc_inc;    
+               MW_writeData;   
 
    // instantiate fetch module
    fetch FETCH(.clk(clk), .rst(rst), .halt(halt), 
@@ -183,7 +180,7 @@ module proc (/*AUTOARG*/
                   .cin(cin), 
                   .STU(STU), 
                   .BTR(BTR), 
-                  .LBI(LBI),                                   
+                  .LBI(LBI), 
                   .setIf(setIf), 
                   .aluA(aluA), 
                   .aluB(aluB), 
