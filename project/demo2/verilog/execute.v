@@ -28,7 +28,7 @@ module execute (  input wire clk,
                   input wire LBI,
                   output wire [15:0]next_pc,
                   output wire [15:0]aluOut,
-                  output wire [15:0]PC,
+                  output wire [15:0]outData,
                   output wire [15:0]specOps);
 
    // TODO: branch logic

@@ -118,18 +118,16 @@ module proc (/*AUTOARG*/
 
    //  ---------- XM_ latch singals ---------- 
    wire [15:0] XM_aluOut, 
-               XM_writeData, 
                XM_specOps, 
                XM_writeData,      //turns into writeData in WB
                XM_next_pc, 
                XM_pc_inc;    
    wire        XM_memWrite, 
-               XM_memRead, 
+               XM_memRead;
    wire [1:0]  XM_regSrc;
 
    // ---------- memory I/O ----------
    wire [15:0] readData;
-   wire [15:0] specOps;
 
    //  ---------- MW_ latch singals ---------- 
    wire [1:0]  MW_regSrc;
@@ -137,7 +135,7 @@ module proc (/*AUTOARG*/
                MW_pc_inc,
                MW_readMemData, 
                MW_aluOut,
-               MW_specOps, 
+               MW_specOps;
 
    // instantiate fetch module
    fetch FETCH(.clk(clk), .rst(rst), .halt(halt), 
@@ -146,7 +144,7 @@ module proc (/*AUTOARG*/
                .instr(instr), 
                .err());
 
-   FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), .
+   FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), 
                .instr(instr), .FD_instr(FD_instr), 
                .pc_inc(pc_inc), .FD_pc_inc(FD_pc_inc));
 
@@ -196,7 +194,7 @@ module proc (/*AUTOARG*/
                .STU(STU), .DX_STU(DX_STU), 
                .BTR(BTR), .DX_BTR(DX_BTR), 
                .LBI(LBI), .DX_LBI(DX_LBI), 
-               .setIf(setIF), .DX_setIf(DX_setIF), 
+               .setIf(setIf), .DX_setIf(DX_setIf), 
                .aluA(aluA), .DX_aluA(DX_aluA), 
                .aluB(aluB), .DX_aluB(DX_aluB), 
                .imm11_ext(imm11_ext), .DX_imm11_ext(DX_imm11_ext), 
@@ -219,18 +217,18 @@ module proc (/*AUTOARG*/
                      .read2Data(DX_read2Data), 
                      .BTR_cs(DX_BTR), 
                      .STU(DX_STU), 
-                     .LBI(DX_LBI),                 //END INPUTS
-                     .next_pc(DX_next_pc), 
-                     .aluOut(DX_aluOut), 
-                     .outData(DX_outData), 
-                     .specOps(DX_specOps), 
-                     .brControl(DX_brControl), 
-                     .setControl(DX_setControl), 
-                     .jump(DX_jump));
+                     .LBI(DX_LBI), 
+                     .jump(DX_jump),                //END INPUTS
+                     .next_pc(next_pc), 
+                     .aluOut(aluOut), 
+                     .outData(outData), 
+                     .specOps(specOps), 
+                     .brControl(brControl), 
+                     .setControl(setControl));
 
    XM_pipe XM_PIPELINE(.clk(clk), .rst(rst), 
                .next_pc(next_pc), .XM_next_pc(XM_next_pc), 
-               .pc_inc(pc_inc), .DX_pc_inc(DX_px_inc),
+               .pc_inc(pc_inc), .XM_pc_inc(XM_pc_inc),
                .aluOut(aluOut), .XM_aluOut(XM_aluOut), 
                .outData(outData), .XM_writeData(XM_writeData), 
                .specOps(specOps), .XM_specOps(XM_specOps),
@@ -247,7 +245,7 @@ module proc (/*AUTOARG*/
                   .readData(readData));   
 
    MW_pipe MW_PIPELINE(.clk(clk), .rst(rst), 
-               .readData(readData), .MW_readData(MW_readMemData), 
+               .readData(readData), .MW_readMemData(MW_readMemData), 
                .XM_regSrc(XM_regSrc), .MW_regSrc(MW_regSrc), 
                .XM_aluOut(XM_aluOut), .MW_aluOut(MW_aluOut), 
                .XM_specOps(XM_specOps), .MW_specOps(MW_specOps), 

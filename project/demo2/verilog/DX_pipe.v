@@ -1,5 +1,5 @@
 module DX_pipe(
-    input clk, input rst
+    input wire clk, input wire rst,
     input wire [15:0]FD_instr,          output wire [15:0]DX_instr,
     input wire [15:0]pc_inc,            output wire [15:0]DX_pc_inc,
     input wire memWrite,                output wire DX_memWrite,
@@ -23,10 +23,10 @@ module DX_pipe(
     input wire [15:0]imm11_ext,         output wire [15:0]DX_imm11_ext, 
     input wire [15:0]imm8_ext,          output wire [15:0]DX_imm8_ext,
     input wire [15:0]read2Data,         output wire [15:0]DX_read2Data
-); 
+    ); 
 
 dff INSTR[15:0](.d(FD_instr), .q(DX_instr), .clk(clk), .rst(rst));
-dff INSTR[15:0](.d(pc_inc), .q(DX_pc_inc), .clk(clk), .rst(rst));
+dff PC_INC[15:0](.d(pc_inc), .q(DX_pc_inc), .clk(clk), .rst(rst));
 dff MEM_WRITE(.d(memWrite), .q(DX_memWrite), .clk(clk), .rst(rst));
 dff MEM_READ(.d(memRead), .q(DX_memRead), .clk(clk), .rst(rst));
 dff REG_SRC[1:0](.d(regSrc), .q(DX_regSrc), .clk(clk), .rst(rst));
@@ -37,12 +37,12 @@ dff BR_CONTROL[2:0](.d(brControl), .q(DX_brControl), .clk(clk), .rst(rst));
 dff SET_CONTROL[1:0](.d(setControl), .q(DX_setControl), .clk(clk), .rst(rst));
 dff ALU_OP[2:0](.d(aluOp), .q(DX_aluOp), .clk(clk), .rst(rst));
 dff INVA(.d(invA), .q(DX_invA), .clk(clk), .rst(rst));
-dff INVB(.d(invB), .q(DX_invB), .clk(clk), .rst(rst));
-dff CIN(.d(cin), .q(DX_cin), .clk(clk), .rst(rst));
-dff STU(.d(STU), .q(DX_STU), .clk(clk), .rst(rst));
-dff BTR(.d(BTR), .q(DX_BTR), .clk(clk), .rst(rst));
-dff LBI(.d(LBI), .q(DX_LBI), .clk(clk), .rst(rst));
-dff SET_IF(.d(setIf), .q(DX_setIf), .clk(clk), .rst(rst));
+dff INVB_FF(.d(invB), .q(DX_invB), .clk(clk), .rst(rst));
+dff CIN_FF(.d(cin), .q(DX_cin), .clk(clk), .rst(rst));
+dff STU_FF(.d(STU), .q(DX_STU), .clk(clk), .rst(rst));
+dff BTR_FF(.d(BTR), .q(DX_BTR), .clk(clk), .rst(rst));
+dff LBI_FF(.d(LBI), .q(DX_LBI), .clk(clk), .rst(rst));
+dff SET_IF_FF(.d(setIf), .q(DX_setIf), .clk(clk), .rst(rst));
 dff ALU_A[15:0](.d(aluA), .q(DX_aluA), .clk(clk), .rst(rst));
 dff ALU_B[15:0](.d(aluB), .q(DX_aluB), .clk(clk), .rst(rst));
 dff IMM11[15:0](.d(imm11_ext), .q(DX_imm11_ext), .clk(clk), .rst(rst));

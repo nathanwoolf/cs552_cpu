@@ -1,5 +1,5 @@
 module MW_pipe(
-    input clk, input rst, 
+    input wire clk, input wire rst, 
     input wire [15:0]readData,      output wire [15:0]MW_readMemData,        //readData from memory
     input wire [1:0]XM_regSrc,      output wire [1:0]MW_regSrc,
     input wire [15:0]XM_aluOut,     output wire [15:0]MW_aluOut, 
