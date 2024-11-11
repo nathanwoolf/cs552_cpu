@@ -42,7 +42,7 @@ module proc (/*AUTOARG*/
     * 
     * Latch singals should be the inputs to each ff stage
     * 
-    * TODO: may be able to omit original intermediate singals??
+    * TODO: what the fuck do we do with regDest? does this need to go through all flops - add as IO to decode?
     *
     */
    
@@ -60,13 +60,9 @@ module proc (/*AUTOARG*/
                FD_pc_inc;
 
    // control signals used outside of DECODE stage
-   wire [1:0]  aluSrc, 
-               regSrc,
+   wire [1:0]  regSrc,
                setControl;
-   wire        zeroExt, 
-               regWrite, 
-               regDest, 
-               memWrite,
+   wire        memWrite,
                memRead, 
                aluJump,
                jump, 
@@ -90,13 +86,9 @@ module proc (/*AUTOARG*/
    wire [1:0]  DX_r_typeALU;
 
    // control signals used outside of DECODE stage
-   wire [1:0]  DX_aluSrc, 
-               DX_regSrc,
+   wire [1:0]  DX_regSrc,
                DX_setControl;
-   wire        DX_zeroExt, 
-               DX_regWrite, 
-               DX_regDest, 
-               DX_memWrite,
+   wire        DX_memWrite,
                DX_memRead, 
                DX_aluJump,
                DX_jump, 
@@ -114,11 +106,8 @@ module proc (/*AUTOARG*/
                DX_aluB, 
                DX_imm11_ext, 
                DX_imm8_ext, 
-               DX_read2Data;    
-
-   //propogate pc related signals
-   wire [15:0] DX_instr, 
-               DX_next_pc, 
+               DX_read2Data,
+               DX_instr, 
                DX_pc_inc;    
 
    // ---------- execute I/O ----------
@@ -131,16 +120,11 @@ module proc (/*AUTOARG*/
    wire [15:0] XM_aluOut, 
                XM_writeData, 
                XM_specOps, 
-               XM_outData;       //turns into writeData in WB
-
-   //propogate pc related signals
-   wire [15:0] XM_instr, 
+               XM_writeData,      //turns into writeData in WB
                XM_next_pc, 
                XM_pc_inc;    
    wire        XM_memWrite, 
                XM_memRead, 
-               XM_halt;
-               
    wire [1:0]  XM_regSrc;
 
    // ---------- memory I/O ----------
@@ -149,11 +133,11 @@ module proc (/*AUTOARG*/
 
    //  ---------- MW_ latch singals ---------- 
    wire [1:0]  MW_regSrc;
-   wire [15:0] MW_PC, 
-               MW_readData, 
+   wire [15:0] MW_next_pc, 
+               MW_pc_inc,
+               MW_readMemData, 
                MW_aluOut,
                MW_specOps, 
-               MW_writeData;   
 
    // instantiate fetch module
    fetch FETCH(.clk(clk), .rst(rst), .halt(halt), 
@@ -169,7 +153,7 @@ module proc (/*AUTOARG*/
    //latch signal from fetch to decode are the denoted by "FD_"
 
    decode DECODE( .clk(clk), .rst(rst), 
-                  .instr(instr), 
+                  .instr(FD_instr), 
                   .writeData(writeData),  //END INPUTS
                   .memWrite(memWrite), 
                   .memRead(memRead), 
@@ -195,46 +179,86 @@ module proc (/*AUTOARG*/
                   .jump(jump));  
 
    DX_pipe DX_pipeline(.clk(clk), .rst(rst), 
-               .)                                            
+               .FD_instr(FD_instr), .DX_instr(DX_instr),
+               .pc_inc(pc_inc), .DX_pc_inc(DX_pc_inc),
+               .memWrite(memWrite), .DX_memWrite(DX_memWrite),
+               .memRead(memRead), .DX_memRead(memRead), 
+               .regSrc(regSrc), .DX_regSrc(DX_regSrc), 
+               .aluJump(aluJump), .DX_aluJump(DX_aluJump), 
+               .jump(jump), .DX_jump(DX_jump), 
+               .immSrc(immSrc), .DX_immSrc(DX_immSrc),
+               .brControl(brControl), .DX_brControl(DX_brControl), 
+               .setControl(setControl), .DX_setControl(DX_setControl), 
+               .aluOp(aluOp), .DX_aluOp(DX_aluOp), 
+               .invA(invA), .DX_invA(DX_invA), 
+               .invB(invB), .DX_invB(DX_invB), 
+               .cin(cin), .DX_cin(DX_cin), 
+               .STU(STU), .DX_STU(DX_STU), 
+               .BTR(BTR), .DX_BTR(DX_BTR), 
+               .LBI(LBI), .DX_LBI(DX_LBI), 
+               .setIf(setIF), .DX_setIf(DX_setIF), 
+               .aluA(aluA), .DX_aluA(DX_aluA), 
+               .aluB(aluB), .DX_aluB(DX_aluB), 
+               .imm11_ext(imm11_ext), .DX_imm11_ext(DX_imm11_ext), 
+               .imm8_ext(imm8_ext), .DX_imm8_ext(DX_imm8_ext), 
+               .read2Data(read2Data), .DX_read2Data(DX_read2Data));                                   
 
    execute EXECUTE( .clk(clk), .rst(rst), 
-                     .PC(pc_inc), 
-                     .aluA(aluA), 
-                     .aluB(aluB), 
-                     .invA(invA), 
-                     .invB(invB), 
-                     .cin(cin), 
-                     .aluOp(aluOp), 
-                     .immSrc(immSrc), 
-                     .aluJump(aluJump), 
-                     .setIf(setIf), 
-                     .imm11_ext(imm11_ext), 
-                     .imm8_ext(imm8_ext), 
-                     .read2Data(read2Data), 
-                     .BTR_cs(BTR), 
-                     .STU(STU), 
-                     .LBI(LBI),                 //END INPUTS
-                     .next_pc(next_pc), 
-                     .aluOut(aluOut), 
-                     .outData(outData), 
-                     .specOps(specOps), 
-                     .brControl(brControl), 
-                     .setControl(setControl), 
-                     .jump(jump));
+                     .PC(DX_pc_inc), 
+                     .aluA(DX_aluA), 
+                     .aluB(DX_aluB), 
+                     .invA(DX_invA), 
+                     .invB(DX_invB), 
+                     .cin(DX_cin), 
+                     .aluOp(DX_aluOp), 
+                     .immSrc(DX_immSrc), 
+                     .aluJump(DX_aluJump), 
+                     .setIf(DX_setIf), 
+                     .imm11_ext(DX_imm11_ext), 
+                     .imm8_ext(DX_imm8_ext), 
+                     .read2Data(DX_read2Data), 
+                     .BTR_cs(DX_BTR), 
+                     .STU(DX_STU), 
+                     .LBI(DX_LBI),                 //END INPUTS
+                     .next_pc(DX_next_pc), 
+                     .aluOut(DX_aluOut), 
+                     .outData(DX_outData), 
+                     .specOps(DX_specOps), 
+                     .brControl(DX_brControl), 
+                     .setControl(DX_setControl), 
+                     .jump(DX_jump));
+
+   XM_pipe XM_PIPELINE(.clk(clk), .rst(rst), 
+               .next_pc(next_pc), .XM_next_pc(XM_next_pc), 
+               .pc_inc(pc_inc), .DX_pc_inc(DX_px_inc),
+               .aluOut(aluOut), .XM_aluOut(XM_aluOut), 
+               .outData(outData), .XM_writeData(XM_writeData), 
+               .specOps(specOps), .XM_specOps(XM_specOps),
+               .DX_memWrite(DX_memWrite), .XM_memWrite(XM_memWrite), 
+               .DX_memRead(DX_memRead), .XM_memRead(XM_memRead), 
+               .DX_regSrc(DX_regSrc), .XM_regSrc(XM_regSrc));
 
    memory MEMORY( .clk(clk), .rst(rst), 
-                  .memWrite(memWrite), 
-                  .memRead(memRead), 
-                  .aluOut(aluOut), 
-                  .writeData(outData), 
+                  .memWrite(XM_memWrite), 
+                  .memRead(XM_memRead), 
+                  .aluOut(XM_aluOut), 
+                  .writeData(XM_writeData), 
                   .halt(halt),                  //END INPUTS
-                  .readData(readData));      
+                  .readData(readData));   
 
-   wb WRITEBACK(  .regSrc(regSrc), 
-                  .PC(pc_inc), 
-                  .readData(readData), 
-                  .aluOut(aluOut), 
-                  .specOps(specOps),              //END INPUTS
+   MW_pipe MW_PIPELINE(.clk(clk), .rst(rst), 
+               .readData(readData), .MW_readData(MW_readMemData), 
+               .XM_regSrc(XM_regSrc), .MW_regSrc(MW_regSrc), 
+               .XM_aluOut(XM_aluOut), .MW_aluOut(MW_aluOut), 
+               .XM_specOps(XM_specOps), .MW_specOps(MW_specOps), 
+               .XM_next_pc(XM_next_pc), .MW_next_pc(MW_next_pc), 
+               .XM_pc_inc(XM_pc_inc), .MW_pc_inc(MW_pc_inc));   
+
+   wb WRITEBACK(  .regSrc(MW_regSrc), 
+                  .PC(MW_pc_inc), 
+                  .readData(MW_readMemData), 
+                  .aluOut(MW_aluOut), 
+                  .specOps(MW_specOps),              //END INPUTS
                   .writeData(writeData));
 
 endmodule // proc

@@ -1,6 +1,7 @@
 module DX_pipe(
     input clk, input rst
     input wire [15:0]FD_instr,          output wire [15:0]DX_instr,
+    input wire [15:0]pc_inc,            output wire [15:0]DX_pc_inc,
     input wire memWrite,                output wire DX_memWrite,
     input wire memRead,                 output wire DX_memRead,       
     input wire [1:0]regSrc,             output wire [1:0]DX_regSrc,    
@@ -25,7 +26,8 @@ module DX_pipe(
 ); 
 
 dff INSTR[15:0](.d(FD_instr), .q(DX_instr), .clk(clk), .rst(rst));
-dff MEM_WRITE(.d(memWrite)), .q(DX_memWrite), .clk(clk), .rst(rst));
+dff INSTR[15:0](.d(pc_inc), .q(DX_pc_inc), .clk(clk), .rst(rst));
+dff MEM_WRITE(.d(memWrite), .q(DX_memWrite), .clk(clk), .rst(rst));
 dff MEM_READ(.d(memRead), .q(DX_memRead), .clk(clk), .rst(rst));
 dff REG_SRC[1:0](.d(regSrc), .q(DX_regSrc), .clk(clk), .rst(rst));
 dff ALU_JUMP(.d(aluJump), .q(DX_aluJump), .clk(clk), .rst(rst));
