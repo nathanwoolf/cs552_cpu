@@ -1,49 +1,50 @@
 module DX_pipe(
-    input wire [15:0] FD_instr, 
-    input wire memWrite,
-    input wire memRead,   
-    input wire [1:0]regSrc,    
-    input wire aluJump,          
-    input wire jump,
-    input wire immSrc,             
-    input wire [2:0]brControl,
-    input wire [1:0]setControl,
-    input wire [2:0]aluOp, 
-    input wire invA, 
-    input wire invB, 
-    input wire cin,
-    input wire STU,
-    input wire BTR,
-    input wire LBI,
-    input wire setIf,
-    input wire halt, 
-    input wire [15:0]aluA, 
-    input wire [15:0]aluB, 
-    input wire [15:0]imm11_ext, 
-    input wire [15:0]imm8_ext,
-    input wire [15:0]read2Data,
-    output wire DX_memWrite,
-    output wire DX_memRead,       
-    output wire [1:0]DX_regSrc,    
-    output wire DX_aluJump,               
-    output wire DX_jump,
-    output wire DX_immSrc,             
-    output wire [2:0]DX_brControl,
-    output wire [1:0]DX_setControl,
-    output wire [2:0]DX_aluOp, 
-    output wire DX_invA, 
-    output wire DX_invB, 
-    output wire DX_cin,
-    output wire DX_STU,
-    output wire DX_BTR,
-    output wire DX_LBI,
-    output wire DX_setIf,
-    output wire DX_halt, 
-    output wire [15:0]DX_aluA, 
-    output wire [15:0]DX_aluB, 
-    output wire [15:0]DX_imm11_ext, 
-    output wire [15:0]DX_imm8_ext,
-    output wire [15:0]DX_read2Data
+    input clk, input rst
+    input wire [15:0]FD_instr,          output wire [15:0]DX_instr,
+    input wire memWrite,                output wire DX_memWrite,
+    input wire memRead,                 output wire DX_memRead,       
+    input wire [1:0]regSrc,             output wire [1:0]DX_regSrc,    
+    input wire aluJump,                 output wire DX_aluJump,               
+    input wire jump,                    output wire DX_jump,
+    input wire immSrc,                  output wire DX_immSrc,             
+    input wire [2:0]brControl,          output wire [2:0]DX_brControl,
+    input wire [1:0]setControl,         output wire [1:0]DX_setControl,
+    input wire [2:0]aluOp,              output wire [2:0]DX_aluOp, 
+    input wire invA,                    output wire DX_invA, 
+    input wire invB,                    output wire DX_invB, 
+    input wire cin,                     output wire DX_cin,
+    input wire STU,                     output wire DX_STU,
+    input wire BTR,                     output wire DX_BTR,
+    input wire LBI,                     output wire DX_LBI,
+    input wire setIf,                   output wire DX_setIf,
+    input wire [15:0]aluA,              output wire [15:0]DX_aluA, 
+    input wire [15:0]aluB,              output wire [15:0]DX_aluB, 
+    input wire [15:0]imm11_ext,         output wire [15:0]DX_imm11_ext, 
+    input wire [15:0]imm8_ext,          output wire [15:0]DX_imm8_ext,
+    input wire [15:0]read2Data,         output wire [15:0]DX_read2Data
 ); 
+
+dff INSTR[15:0](.d(FD_instr), .q(DX_instr), .clk(clk), .rst(rst));
+dff MEM_WRITE(.d(memWrite)), .q(DX_memWrite), .clk(clk), .rst(rst));
+dff MEM_READ(.d(memRead), .q(DX_memRead), .clk(clk), .rst(rst));
+dff REG_SRC[1:0](.d(regSrc), .q(DX_regSrc), .clk(clk), .rst(rst));
+dff ALU_JUMP(.d(aluJump), .q(DX_aluJump), .clk(clk), .rst(rst));
+dff JUMP(.d(jump), .q(DX_jump), .clk(clk), .rst(rst));
+dff IMM_SRC(.d(immSrc), .q(DX_immSrc), .clk(clk), .rst(rst));
+dff BR_CONTROL[2:0](.d(brControl), .q(DX_brControl), .clk(clk), .rst(rst));
+dff SET_CONTROL[1:0](.d(setControl), .q(DX_setControl), .clk(clk), .rst(rst));
+dff ALU_OP[2:0](.d(aluOp), .q(DX_aluOp), .clk(clk), .rst(rst));
+dff INVA(.d(invA), .q(DX_invA), .clk(clk), .rst(rst));
+dff INVB(.d(invB), .q(DX_invB), .clk(clk), .rst(rst));
+dff CIN(.d(cin), .q(DX_cin), .clk(clk), .rst(rst));
+dff STU(.d(STU), .q(DX_STU), .clk(clk), .rst(rst));
+dff BTR(.d(BTR), .q(DX_BTR), .clk(clk), .rst(rst));
+dff LBI(.d(LBI), .q(DX_LBI), .clk(clk), .rst(rst));
+dff SET_IF(.d(setIf), .q(DX_setIf), .clk(clk), .rst(rst));
+dff ALU_A[15:0](.d(aluA), .q(DX_aluA), .clk(clk), .rst(rst));
+dff ALU_B[15:0](.d(aluB), .q(DX_aluB), .clk(clk), .rst(rst));
+dff IMM11[15:0](.d(imm11_ext), .q(DX_imm11_ext), .clk(clk), .rst(rst));
+dff IMM8[15:0](.d(imm8_ext), .q(DX_imm8_ext), .clk(clk), .rst(rst));
+dff READ2DATA[15:0](.d(read2Data), .q(DX_read2Data), .clk(clk), .rst(rst));
 
 endmodule

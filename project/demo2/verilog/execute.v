@@ -18,8 +18,8 @@ module execute (  input wire clk,
                   input wire aluJump,
                   input wire jump,                //
                   input wire setIf,               //
-                  input wire [2:0]brControl,
-                  input wire [1:0]setControl,      // ..
+                  input wire [2:0]brControl,       
+                  input wire [1:0]setControl,     // ..
                   input wire [15:0]imm11_ext,     // ..
                   input wire [15:0]imm8_ext,      // ----------------------------------------
                   input wire [15:0]read2Data,

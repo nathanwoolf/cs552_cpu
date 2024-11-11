@@ -51,14 +51,13 @@ module proc (/*AUTOARG*/
    wire [15:0] instr,  
                next_pc,
                pc_inc;
-
-   //  ---------- FD_ latch singals ----------
-   wire [15:0] FD_instr, 
-               FD_next_pc, 
-               FD_pc_inc;
    
    // ---------- decode I/O ----------
    wire [1:0]  r_typeALU;
+
+   //  ---------- DX_ latch singals ----------  
+   wire [15:0] FD_instr, 
+               FD_pc_inc;
 
    // control signals used outside of DECODE stage
    wire [1:0]  aluSrc, 
@@ -163,6 +162,10 @@ module proc (/*AUTOARG*/
                .instr(instr), 
                .err());
 
+   FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), .
+               .instr(instr), .FD_instr(FD_instr), 
+               .pc_inc(pc_inc), .FD_pc_inc(FD_pc_inc));
+
    //latch signal from fetch to decode are the denoted by "FD_"
 
    decode DECODE( .clk(clk), .rst(rst), 
@@ -189,7 +192,10 @@ module proc (/*AUTOARG*/
                   .read2Data(read2Data), 
                   .halt(halt), 
                   .setControl(setControl), 
-                  .jump(jump));                                              
+                  .jump(jump));  
+
+   DX_pipe DX_pipeline(.clk(clk), .rst(rst), 
+               .)                                            
 
    execute EXECUTE( .clk(clk), .rst(rst), 
                      .PC(pc_inc), 
