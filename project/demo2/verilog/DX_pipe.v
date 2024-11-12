@@ -22,7 +22,9 @@ module DX_pipe(
     input wire [15:0]aluB,              output wire [15:0]DX_aluB, 
     input wire [15:0]imm11_ext,         output wire [15:0]DX_imm11_ext, 
     input wire [15:0]imm8_ext,          output wire [15:0]DX_imm8_ext,
-    input wire [15:0]read2Data,         output wire [15:0]DX_read2Data
+    input wire [15:0]read2Data,         output wire [15:0]DX_read2Data,
+    input wire regWrite,                output wire DX_regWrite,
+    input wire [2:0]writeReg,           output wire [2:0]DX_writeReg 
     ); 
 
 dff INSTR[15:0](.d(FD_instr), .q(DX_instr), .clk(clk), .rst(rst));
@@ -48,5 +50,7 @@ dff ALU_B[15:0](.d(aluB), .q(DX_aluB), .clk(clk), .rst(rst));
 dff IMM11[15:0](.d(imm11_ext), .q(DX_imm11_ext), .clk(clk), .rst(rst));
 dff IMM8[15:0](.d(imm8_ext), .q(DX_imm8_ext), .clk(clk), .rst(rst));
 dff READ2DATA[15:0](.d(read2Data), .q(DX_read2Data), .clk(clk), .rst(rst));
+dff REGWRITE(.d(regWrite), .q(DX_regWrite), .clk(clk), .rst(rst));
+dff WRITEREG[2:0](.d(writeReg), .q(DX_writeReg), .clk(clk), .rst(rst));
 
 endmodule

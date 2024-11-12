@@ -43,19 +43,20 @@ module proc (/*AUTOARG*/
     * Latch singals should be the inputs to each ff stage
     * 
     * TODO: what the fuck do we do with regDest? does this need to go through all flops - add as IO to decode?
+    * Matthew - propogate regDest, regWrite, and writeData through all flops, come out of wb and into FD latch
     *
     */
    
    // ---------- fetch I/O ----------
-   wire halt;  
+   wire halt, valid, branch_or_jump, NOP;  
    wire [15:0] instr,  
                next_pc,
                pc_inc;
    
    // ---------- decode I/O ----------
-   wire [1:0]  r_typeALU;
 
    //  ---------- DX_ latch singals ----------  
+   wire FD_valid;
    wire [15:0] FD_instr, 
                FD_pc_inc;
 
@@ -73,9 +74,11 @@ module proc (/*AUTOARG*/
                STU, 
                BTR, 
                LBI,
-               setIf;
+               setIf,
+               regWrite;
    wire [2:0]  brControl, 
-               aluOp;
+               aluOp,
+               writeReg;
    wire [15:0] aluA, 
                aluB, 
                imm11_ext, 
@@ -83,7 +86,6 @@ module proc (/*AUTOARG*/
                read2Data;
 
    //  ---------- DX_ latch singals ----------  
-   wire [1:0]  DX_r_typeALU;
 
    // control signals used outside of DECODE stage
    wire [1:0]  DX_regSrc,
@@ -99,16 +101,18 @@ module proc (/*AUTOARG*/
                DX_STU, 
                DX_BTR, 
                DX_LBI,
-               DX_setIf;
+               DX_setIf,
+               DX_regWrite;
    wire [2:0]  DX_brControl, 
-               DX_aluOp;
+               DX_aluOp,
+               DX_writeReg;
    wire [15:0] DX_aluA, 
                DX_aluB, 
                DX_imm11_ext, 
                DX_imm8_ext, 
                DX_read2Data,
-               DX_instr, 
-               DX_pc_inc;    
+               DX_pc_inc,
+               DX_instr;    
 
    // ---------- execute I/O ----------
    wire [15:0] aluOut, 
@@ -121,16 +125,21 @@ module proc (/*AUTOARG*/
                XM_specOps, 
                XM_writeData,      //turns into writeData in WB
                XM_next_pc, 
-               XM_pc_inc;    
+               XM_pc_inc,
+               XM_instr;    
    wire        XM_memWrite, 
-               XM_memRead;
+               XM_memRead,
+               XM_regWrite;
    wire [1:0]  XM_regSrc;
+   wire [2:0]  XM_writeReg;
 
    // ---------- memory I/O ----------
    wire [15:0] readData;
 
    //  ---------- MW_ latch singals ---------- 
+   wire        MW_regWrite;
    wire [1:0]  MW_regSrc;
+   wire [2:0]  MW_writeReg;
    wire [15:0] MW_next_pc, 
                MW_pc_inc,
                MW_readMemData, 
@@ -139,20 +148,27 @@ module proc (/*AUTOARG*/
 
    // instantiate fetch module
    fetch FETCH(.clk(clk), .rst(rst), .halt(halt), 
-               .PC(next_pc), 
+               .branch_or_jump(branch_or_jump),
+               .NOP(NOP),
+               .PC(XM_next_pc), // TODO is this correct stage of next_pc?
+               .pc_plus_two(pc_inc),
                .pc_inc(pc_inc), 
-               .instr(instr), 
+               .instr(instr),
+               .valid(valid), 
                .err());
 
    FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), 
                .instr(instr), .FD_instr(FD_instr), 
-               .pc_inc(pc_inc), .FD_pc_inc(FD_pc_inc));
+               .pc_inc(pc_inc), .FD_pc_inc(FD_pc_inc),
+               .valid(valid), .FD_valid(FD_valid));
 
    //latch signal from fetch to decode are the denoted by "FD_"
 
    decode DECODE( .clk(clk), .rst(rst), 
                   .instr(FD_instr), 
-                  .writeData(writeData),  //END INPUTS
+                  .writeData(writeData),
+                  .MW_regWrite(MW_regWrite),
+                  .MW_writeReg(MW_writeReg),  //END INPUTS
                   .memWrite(memWrite), 
                   .memRead(memRead), 
                   .aluJump(aluJump), 
@@ -174,13 +190,16 @@ module proc (/*AUTOARG*/
                   .read2Data(read2Data), 
                   .halt(halt), 
                   .setControl(setControl), 
-                  .jump(jump));  
+                  .jump(jump),
+                  .regWrite(regWrite), 
+                  .writeReg(writeReg),
+                  .valid(FD_valid));  
 
    DX_pipe DX_pipeline(.clk(clk), .rst(rst), 
                .FD_instr(FD_instr), .DX_instr(DX_instr),
-               .pc_inc(pc_inc), .DX_pc_inc(DX_pc_inc),
+               .pc_inc(FD_pc_inc), .DX_pc_inc(DX_pc_inc),
                .memWrite(memWrite), .DX_memWrite(DX_memWrite),
-               .memRead(memRead), .DX_memRead(memRead), 
+               .memRead(memRead), .DX_memRead(DX_memRead), 
                .regSrc(regSrc), .DX_regSrc(DX_regSrc), 
                .aluJump(aluJump), .DX_aluJump(DX_aluJump), 
                .jump(jump), .DX_jump(DX_jump), 
@@ -199,7 +218,9 @@ module proc (/*AUTOARG*/
                .aluB(aluB), .DX_aluB(DX_aluB), 
                .imm11_ext(imm11_ext), .DX_imm11_ext(DX_imm11_ext), 
                .imm8_ext(imm8_ext), .DX_imm8_ext(DX_imm8_ext), 
-               .read2Data(read2Data), .DX_read2Data(DX_read2Data));                                   
+               .read2Data(read2Data), .DX_read2Data(DX_read2Data),
+               .regWrite(regWrite), .DX_regWrite(DX_regWrite),
+               .writeReg(writeReg), .DX_writeReg(DX_writeReg));                                   
 
    execute EXECUTE( .clk(clk), .rst(rst), 
                      .PC(DX_pc_inc), 
@@ -227,6 +248,7 @@ module proc (/*AUTOARG*/
                      .setControl(setControl));
 
    XM_pipe XM_PIPELINE(.clk(clk), .rst(rst), 
+               .DX_instr(DX_instr), .XM_instr(XM_instr),
                .next_pc(next_pc), .XM_next_pc(XM_next_pc), 
                .pc_inc(pc_inc), .XM_pc_inc(XM_pc_inc),
                .aluOut(aluOut), .XM_aluOut(XM_aluOut), 
@@ -234,7 +256,9 @@ module proc (/*AUTOARG*/
                .specOps(specOps), .XM_specOps(XM_specOps),
                .DX_memWrite(DX_memWrite), .XM_memWrite(XM_memWrite), 
                .DX_memRead(DX_memRead), .XM_memRead(XM_memRead), 
-               .DX_regSrc(DX_regSrc), .XM_regSrc(XM_regSrc));
+               .DX_regSrc(DX_regSrc), .XM_regSrc(XM_regSrc),
+               .DX_regWrite(DX_regWrite), .XM_regWrite(XM_regWrite),
+               .DX_writeReg(DX_writeReg), .XM_writeReg(XM_writeReg));
 
    memory MEMORY( .clk(clk), .rst(rst), 
                   .memWrite(XM_memWrite), 
@@ -250,7 +274,9 @@ module proc (/*AUTOARG*/
                .XM_aluOut(XM_aluOut), .MW_aluOut(MW_aluOut), 
                .XM_specOps(XM_specOps), .MW_specOps(MW_specOps), 
                .XM_next_pc(XM_next_pc), .MW_next_pc(MW_next_pc), 
-               .XM_pc_inc(XM_pc_inc), .MW_pc_inc(MW_pc_inc));   
+               .XM_pc_inc(XM_pc_inc), .MW_pc_inc(MW_pc_inc),
+               .XM_regWrite(XM_regWrite), .MW_regWrite(MW_regWrite),
+               .XM_writeReg(XM_writeReg), .MW_writeReg(MW_writeReg));   
 
    wb WRITEBACK(  .regSrc(MW_regSrc), 
                   .PC(MW_pc_inc), 
@@ -258,6 +284,15 @@ module proc (/*AUTOARG*/
                   .aluOut(MW_aluOut), 
                   .specOps(MW_specOps),              //END INPUTS
                   .writeData(writeData));
+
+   hazard_unit HAZARD(
+      .instr(instr),
+      .FD_instr(FD_instr),
+      .DX_instr(DX_instr),
+      .XM_instr(XM_instr),
+      .branch_or_jump(branch_or_jump),
+      .NOP(NOP)
+    ); 
 
 endmodule // proc
 `default_nettype wire

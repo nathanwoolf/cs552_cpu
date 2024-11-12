@@ -23,7 +23,7 @@ module fetch ( input wire clk,
 
    //want to use a latch for the pc to hold value
    wire [15:0]pc_latch;
-   register PCBLOCK(.clk(clk), .rst(rst), .data_in(PC), .data_out(pc_latch), .write_en(1'b1), .err(err));
+   register PCBLOCK(.clk(clk), .rst(rst), .data_in(PC), .data_out(pc_latch), .write_en(~halt), .err(err));
 
    //increment pc by two
    cla_16b ADDTWO(.sum(pc_inc), .c_out(sum_cout), .a(pc_latch), .b(16'h0002), .c_in(1'b0)); // TODO c_out is err?

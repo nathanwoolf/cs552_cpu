@@ -140,7 +140,6 @@ module proc_hier_bench();
    
    assign MemRead =  DUT.p0.MEMORY.memRead;
    // Is memory being read, one bit signal (1 means yes, 0 means no)
-   // TODO We do not use memRead currently.
    
    assign MemWrite = (DUT.p0.MEMORY.enable & DUT.p0.MEMORY.memWrite);
    // Is memory being written to (1 bit signal)

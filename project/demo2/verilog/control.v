@@ -7,6 +7,7 @@
 `default_nettype none
 module control (input   wire [4:0] opcode, 
                 input   wire [1:0] r_typeALU,
+                input   wire valid,
                 output  reg [1:0] aluSrc, 
                 output  reg zeroExt, 
                 output  reg [1:0]regSrc,
@@ -28,6 +29,9 @@ module control (input   wire [4:0] opcode,
                 output  reg BTR,
                 output  reg LBI,
                 output  reg setIf);
+
+wire [4:0]sel_opcode;
+assign sel_opcode = valid ? opcode : 5'b00001;
 
 always @(*) begin 
     // Default outputs
@@ -56,18 +60,18 @@ always @(*) begin
         
         halt = 1'b0;
 
-    casex (opcode)
+    casex (sel_opcode)
 
         // Arithmetic with immediate
         5'b010??: begin 
             aluSrc = 2'b10;
-            zeroExt = opcode[1];
+            zeroExt = sel_opcode[1];
             regSrc = 2'b10;
             regWrite = 1'b1; 
-            aluOp = (~opcode[1]) ? 3'b000 : opcode[2:0];
-            invA = ~opcode[1] & opcode[0];
-            invB = opcode[1] & opcode[0];
-            cin = ~opcode[1] & opcode[0];
+            aluOp = (~sel_opcode[1]) ? 3'b000 : sel_opcode[2:0];
+            invA = ~sel_opcode[1] & sel_opcode[0];
+            invB = sel_opcode[1] & sel_opcode[0];
+            cin = ~sel_opcode[1] & sel_opcode[0];
         end
 
         // Shift with immediate
@@ -75,7 +79,7 @@ always @(*) begin
             aluSrc = 2'b10; 
             regSrc = 2'b10;
             regWrite = 1'b1; 
-            aluOp = opcode[2:0]; 
+            aluOp = sel_opcode[2:0]; 
         end
 
         // ST
@@ -120,7 +124,6 @@ always @(*) begin
             invA = (~r_typeALU[1] & r_typeALU[0]) ? 1'b1 : 1'b0;
             invB = (r_typeALU[1] & r_typeALU[0]) ? 1'b1 : 1'b0;
             cin = (~r_typeALU[1] & r_typeALU[0]) ? 1'b1 : 1'b0;
-
         end
 
         // Shift with registers
@@ -136,17 +139,17 @@ always @(*) begin
             regDest = 2'b10;
             regSrc = 2'b11;
             regWrite = 1'b1; 
-            invB = (opcode[0] & opcode[1]) ? 1'b0 : 1'b1;
-            cin = (opcode[0] & opcode[1]) ? 1'b0 : 1'b1;
+            invB = (sel_opcode[0] & sel_opcode[1]) ? 1'b0 : 1'b1;
+            cin = (sel_opcode[0] & sel_opcode[1]) ? 1'b0 : 1'b1;
             setIf = 1'b1;
-            setControl = opcode[1:0];
+            setControl = sel_opcode[1:0];
         end
 
         // Branch
         5'b011??: begin 
             aluSrc = 2'b11;
             immSrc = 1'b1;
-            brControl = {1'b1, opcode[1:0]};
+            brControl = {1'b1, sel_opcode[1:0]};
         end
 
         // LBI
@@ -169,9 +172,9 @@ always @(*) begin
         // Jump
         5'b001??: begin 
             regDest = 2'b11;
-            regWrite = opcode[1];
-            aluJump = opcode[0];
-            immSrc = opcode[0]; 
+            regWrite = sel_opcode[1];
+            aluJump = sel_opcode[0];
+            immSrc = sel_opcode[0]; 
             jump = 1'b1;
             aluSrc = 1'b1;
         end
