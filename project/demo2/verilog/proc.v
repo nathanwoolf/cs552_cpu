@@ -25,31 +25,14 @@ module proc (/*AUTOARG*/
    /* your code here -- should include instantiations of fetch, decode, execute, mem and wb modules */
 
    /* README
-    * 
-    * Piping rule of thumb: every cpu block (F D X M W) should have its inputs and 
-    * outputs contained in a latch at some point
-    * 
-    * if, say, an output from decode is not consumed until W, that signal MUST  
-    * propogate through each intermediate latch 
-    * 
-    * prepend the transisition to singal name e.g. FD_ for latch between fetch and decode
-    *
-    * each stage should should hold the outputs from the first letter and then inputs to the second 
-    * 
-    * take regSrc as an example: 
-    *    produced in decode and isnt consumed until Writeback
-    *    we will need the following signals: DX_regSrc, XM_regSrc,  MW_regSrc
-    * 
-    * Latch singals should be the inputs to each ff stage
-    * 
-    * TODO: what the fuck do we do with regDest? does this need to go through all flops - add as IO to decode?
     * Matthew - propogate regDest, regWrite, and writeData through all flops, come out of wb and into FD latch
     *
     */
-   
+   wire [1:0]regDest;
    // ---------- fetch I/O ----------
    wire halt, valid, branch_or_jump, NOP;  
-   wire [15:0] instr,  
+   wire [15:0] instr,
+               next_instr,  
                next_pc,
                pc_inc;
    
@@ -102,7 +85,8 @@ module proc (/*AUTOARG*/
                DX_BTR, 
                DX_LBI,
                DX_setIf,
-               DX_regWrite;
+               DX_regWrite, 
+               DX_halt;
    wire [2:0]  DX_brControl, 
                DX_aluOp,
                DX_writeReg;
@@ -129,7 +113,8 @@ module proc (/*AUTOARG*/
                XM_instr;    
    wire        XM_memWrite, 
                XM_memRead,
-               XM_regWrite;
+               XM_regWrite,
+               XM_halt;
    wire [1:0]  XM_regSrc;
    wire [2:0]  XM_writeReg;
 
@@ -137,7 +122,8 @@ module proc (/*AUTOARG*/
    wire [15:0] readData;
 
    //  ---------- MW_ latch singals ---------- 
-   wire        MW_regWrite;
+   wire        MW_regWrite,
+               MW_halt;
    wire [1:0]  MW_regSrc;
    wire [2:0]  MW_writeReg;
    wire [15:0] MW_next_pc, 
@@ -147,7 +133,7 @@ module proc (/*AUTOARG*/
                MW_specOps;
 
    // instantiate fetch module
-   fetch FETCH(.clk(clk), .rst(rst), .halt(halt), 
+   fetch FETCH(.clk(clk), .rst(rst), .halt(MW_halt), 
                .branch_or_jump(branch_or_jump),
                .NOP(NOP),
                .PC(XM_next_pc), // TODO is this correct stage of next_pc?
@@ -157,8 +143,19 @@ module proc (/*AUTOARG*/
                .valid(valid), 
                .err());
 
+   hazard_unit HAZARD(
+      .instr(instr),
+      .FD_instr(FD_instr),
+      .DX_writeReg(DX_writeReg),
+      .XM_writeReg(XM_writeReg),
+      .regDest(regDest),
+      .branch_or_jump(branch_or_jump),
+      .next_instr(next_instr),
+      .NOP(NOP)
+    ); 
+
    FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), 
-               .instr(instr), .FD_instr(FD_instr), 
+               .instr(next_instr), .FD_instr(FD_instr), 
                .pc_inc(pc_inc), .FD_pc_inc(FD_pc_inc),
                .valid(valid), .FD_valid(FD_valid));
 
@@ -193,7 +190,8 @@ module proc (/*AUTOARG*/
                   .jump(jump),
                   .regWrite(regWrite), 
                   .writeReg(writeReg),
-                  .valid(FD_valid));  
+                  .valid(FD_valid),
+                  .regDest(regDest));  
 
    DX_pipe DX_pipeline(.clk(clk), .rst(rst), 
                .FD_instr(FD_instr), .DX_instr(DX_instr),
@@ -220,7 +218,8 @@ module proc (/*AUTOARG*/
                .imm8_ext(imm8_ext), .DX_imm8_ext(DX_imm8_ext), 
                .read2Data(read2Data), .DX_read2Data(DX_read2Data),
                .regWrite(regWrite), .DX_regWrite(DX_regWrite),
-               .writeReg(writeReg), .DX_writeReg(DX_writeReg));                                   
+               .writeReg(writeReg), .DX_writeReg(DX_writeReg),
+               .halt(halt), .DX_halt(DX_halt));                                   
 
    execute EXECUTE( .clk(clk), .rst(rst), 
                      .PC(DX_pc_inc), 
@@ -258,14 +257,15 @@ module proc (/*AUTOARG*/
                .DX_memRead(DX_memRead), .XM_memRead(XM_memRead), 
                .DX_regSrc(DX_regSrc), .XM_regSrc(XM_regSrc),
                .DX_regWrite(DX_regWrite), .XM_regWrite(XM_regWrite),
-               .DX_writeReg(DX_writeReg), .XM_writeReg(XM_writeReg));
+               .DX_writeReg(DX_writeReg), .XM_writeReg(XM_writeReg), 
+               .DX_halt(DX_halt), .XM_halt(XM_halt));
 
    memory MEMORY( .clk(clk), .rst(rst), 
                   .memWrite(XM_memWrite), 
                   .memRead(XM_memRead), 
                   .aluOut(XM_aluOut), 
                   .writeData(XM_writeData), 
-                  .halt(halt),                  //END INPUTS
+                  .halt(MW_halt),                  //END INPUTS
                   .readData(readData));   
 
    MW_pipe MW_PIPELINE(.clk(clk), .rst(rst), 
@@ -276,7 +276,8 @@ module proc (/*AUTOARG*/
                .XM_next_pc(XM_next_pc), .MW_next_pc(MW_next_pc), 
                .XM_pc_inc(XM_pc_inc), .MW_pc_inc(MW_pc_inc),
                .XM_regWrite(XM_regWrite), .MW_regWrite(MW_regWrite),
-               .XM_writeReg(XM_writeReg), .MW_writeReg(MW_writeReg));   
+               .XM_writeReg(XM_writeReg), .MW_writeReg(MW_writeReg),
+               .XM_halt(XM_halt), .MW_halt(MW_halt));   
 
    wb WRITEBACK(  .regSrc(MW_regSrc), 
                   .PC(MW_pc_inc), 
@@ -285,14 +286,6 @@ module proc (/*AUTOARG*/
                   .specOps(MW_specOps),              //END INPUTS
                   .writeData(writeData));
 
-   hazard_unit HAZARD(
-      .instr(instr),
-      .FD_instr(FD_instr),
-      .DX_instr(DX_instr),
-      .XM_instr(XM_instr),
-      .branch_or_jump(branch_or_jump),
-      .NOP(NOP)
-    ); 
 
 endmodule // proc
 `default_nettype wire

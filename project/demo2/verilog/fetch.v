@@ -25,7 +25,7 @@ module fetch ( input wire clk,
 
    //want to use a latch for the pc to hold value
    wire [15:0]pc_latch;
-   register PCBLOCK(.clk(clk), .rst(rst), .data_in(sel_PC), .data_out(pc_latch), .write_en(~halt | ~NOP), .err(err));
+   register PCBLOCK(.clk(clk), .rst(rst), .data_in(sel_PC), .data_out(pc_latch), .write_en(~halt & ~NOP), .err(err));   //TODO what to do with 
 
    //increment pc by two
    wire sum_cout;
@@ -36,10 +36,7 @@ module fetch ( input wire clk,
    //    read the instruction at pc to inst_fetch
    //    use halt bit to enable/dump memory file
    //    hard code write to zero (were only reading here)
-   wire [15:0]next_instr;
-   memory2c instruction_mem(.data_out(next_instr), .data_in(16'b0), .addr(pc_latch), .enable(1'b1), .wr(1'b0), .createdump(halt), .clk(clk), .rst(rst)); 
-
-   assign instr = NOP ? 16'h0800 : next_instr;
+   memory2c instruction_mem(.data_out(instr), .data_in(16'b0), .addr(pc_latch), .enable(1'b1), .wr(1'b0), .createdump(halt), .clk(clk), .rst(rst)); 
 
    assign valid = 1'b1;
    

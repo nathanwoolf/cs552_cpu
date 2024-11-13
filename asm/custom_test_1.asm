@@ -8,7 +8,4 @@ add r4, r1, r2	//expected r4 = 399 or x018f
 add r6, r2, r1	//expected r6 = 399 or x018f
 add r5, r1, r4	//expected r5 = 499 or x01f3
 add r4, r5, r1	//expected r4 = 599 or x0257
-nop
-nop
-nop
 halt

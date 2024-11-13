@@ -1,33 +1,52 @@
 module hazard_unit(
     input wire [15:0]instr,
     input wire [15:0]FD_instr,
-    input wire [15:0]DX_instr,
-    input wire [15:0]XM_instr,
+    input wire [2:0]DX_writeReg,
+    input wire [2:0]XM_writeReg,
+    input wire [1:0]regDest,
     output wire branch_or_jump,
+    output wire [15:0]next_instr,
     output wire NOP
 );
 
 assign branch_or_jump = ~instr[15] && instr[13];
 
-reg read_RS, read_RT;
-
-
-
-
-
+wire read_RS, read_RT;
+wire [2:0] FD_Rd, DX_Rd, XM_Rd;
 // TODO
 
-// Get reg dest based on R/I type
-assign FD_Rd = (FD_instr[15:11] == 5'b11000) ? (FD_instr[15:14] == 2'b11) ? FD_instr[4:2] : FD_instr[7:5];
-assign DX_Rd = (DX_instr[15:14] == 2'b11) ? DX_instr[4:2] : DX_instr[7:5];
-assign XM_Rd = (XM_instr[15:14] == 2'b11) ? XM_instr[4:2] : XM_instr[7:5];
+// Determine FD_Rd
+mux4_1_3b REGDEST(.sel(regDest), .inp0(FD_instr[7:5]), .inp1(FD_instr[10:8]), .inp2(FD_instr[4:2]), .inp3(3'b111), .out(FD_Rd));
 
+// Get reg dest based on R/I type
+// assign FD_Rd = (FD_instr[15:11] == 5'b11000) ? (FD_instr[15:14] == 2'b11) ? FD_instr[4:2] : FD_instr[7:5];
+// assign DX_Rd = (DX_instr[15:14] == 2'b11) ? DX_instr[4:2] : DX_instr[7:5];
+// assign XM_Rd = (XM_instr[15:14] == 2'b11) ? XM_instr[4:2] : XM_instr[7:5];
+
+
+// need to make sure reg were reading from is not the same as any we will be writing to in downstream instr 
+
+
+assign DX_Rd = DX_writeReg;
+assign XM_Rd = XM_writeReg;
+
+assign read_RS = (  (instr[15:13] == 3'b010) || 
+                    (instr[15:13] == 3'b101) || 
+                    (instr[15:13] == 3'b100) || 
+                    (instr[15:12] == 4'b1101) || 
+                    (instr[15:13] == 3'b111) ||
+                    (instr[15:13] == 3'b011) ||
+                    (instr[15:13] == 3'b001 && instr[11] == 1)) ? 1'b1 : 1'b0; 
+assign read_RT = (instr[15:12] == 5'b1101) ? (~(instr[15:11] == 5'b11001)) : 
+                    (instr[15:13] == 5'b111) ? 1'b1 : 1'b0;
 
 // RS is [10:8], RT is [7:5]
 assign NOP = (FD_instr !== 16'b0000) ? ((read_RS && (FD_Rd == instr[10:8] || DX_Rd == instr[10:8] || XM_Rd == instr[10:8])) ||
              (read_RT && (FD_Rd == instr[7:5] || DX_Rd == instr[7:5] || XM_Rd == instr[7:5]))) : 1'b0;
 
-
+assign next_instr = NOP ? 16'h0800 : instr;
+              
+/*
 always @(*) begin 
     // Default outputs
     read_RS = 1'b0;
@@ -74,5 +93,6 @@ always @(*) begin
 
     endcase 
 end 
+*/ 
 
 endmodule

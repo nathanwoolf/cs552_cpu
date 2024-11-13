@@ -35,12 +35,15 @@ module decode (input wire clk,
                output wire [15:0]imm8_ext,
                output wire [15:0]read2Data,
                output wire regWrite,
+               output wire [1:0]regDest,
                output wire [2:0]writeReg);
    
    // control module signals
    wire [1:0]aluSrc;
    wire zeroExt; 
-   wire [1:0] regDest;
+   wire [1:0] regDest_int;
+
+   assign regDest_int = regDest;
 
    //4-1 mux controlled by regdest -> decides what our write register is
    // instatiate control module
@@ -50,7 +53,7 @@ module decode (input wire clk,
                          .cin(cin), .STU(STU), .BTR(BTR), .LBI(LBI), .setIf(setIf), .halt(halt), .setControl(setControl), .jump(jump)); 
    
    // 4 to 1 mux to control write data reg
-   mux4_1_3b REGDEST(.sel(regDest), .inp0(instr[7:5]), .inp1(instr[10:8]), .inp2(instr[4:2]), .inp3(3'b111), .out(writeReg));
+   mux4_1_3b REGDEST(.sel(regDest_int), .inp0(instr[7:5]), .inp1(instr[10:8]), .inp2(instr[4:2]), .inp3(3'b111), .out(writeReg));
 
    // outputs from reg file go to alusrc1 and alusrc2 -> need to mux read2Data with other signals
    wire err; 

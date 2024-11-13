@@ -10,7 +10,8 @@ module XM_pipe(
     input wire DX_memRead,              output wire XM_memRead, 
     input wire [1:0]DX_regSrc,          output wire [1:0]XM_regSrc,
     input wire DX_regWrite,             output wire XM_regWrite,
-    input wire [2:0]DX_writeReg,        output wire [2:0]XM_writeReg   
+    input wire [2:0]DX_writeReg,        output wire [2:0]XM_writeReg, 
+    input wire DX_halt,                 output wire XM_halt   
 ); 
 
 dff INSTR[15:0](.d(DX_instr), .q(XM_instr), .clk(clk), .rst(rst));
@@ -24,5 +25,6 @@ dff MEE_READ(.d(DX_memRead), .q(XM_memRead), .clk(clk), .rst(rst));
 dff REG_SRC[1:0](.d(DX_regSrc), .q(XM_regSrc), .clk(clk), .rst(rst));
 dff REGWRITE(.d(DX_regWrite), .q(XM_regWrite), .clk(clk), .rst(rst));
 dff WRITEREG[2:0](.d(DX_writeReg), .q(XM_writeReg), .clk(clk), .rst(rst));
+dff HALT(.d(DX_halt), .q(XM_halt), .clk(clk), .rst(rst));
 
 endmodule
