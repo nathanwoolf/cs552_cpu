@@ -168,7 +168,6 @@ always @(*) begin
             regWrite = 1'b1;
         end
 
-
         // Jump
         5'b001??: begin 
             regDest = 2'b11;

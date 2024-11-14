@@ -30,7 +30,7 @@ module proc (/*AUTOARG*/
     */
    wire [1:0]regDest;
    // ---------- fetch I/O ----------
-   wire halt, valid, branch_or_jump, NOP;  
+   wire halt, valid, NOP;  
    wire [15:0] instr,
                next_instr,  
                next_pc,
@@ -134,9 +134,9 @@ module proc (/*AUTOARG*/
 
    // instantiate fetch module
    fetch FETCH(.clk(clk), .rst(rst), .halt(MW_halt), 
-               .branch_or_jump(branch_or_jump),
+               .branch_or_jump(DX_brControl[2] | DX_jump),
                .NOP(NOP),
-               .PC(XM_next_pc), // TODO is this correct stage of next_pc?
+               .PC(next_pc), // TODO is this correct stage of next_pc?
                .pc_plus_two(pc_inc),
                .pc_inc(pc_inc), 
                .instr(instr),
@@ -146,10 +146,16 @@ module proc (/*AUTOARG*/
    hazard_unit HAZARD(
       .instr(instr),
       .FD_instr(FD_instr),
+      .FD_writeReg(writeReg),
       .DX_writeReg(DX_writeReg),
       .XM_writeReg(XM_writeReg),
       .regDest(regDest),
-      .branch_or_jump(branch_or_jump),
+      .FD_regWrite(regWrite),
+      .DX_regWrite(DX_regWrite),
+      .XM_regWrite(XM_regWrite),
+      .FD_br_or_j(brControl[2] | jump),
+      .DX_br_or_j(DX_brControl[2] | DX_jump),
+      // .XM_br_or_j(DX),
       .next_instr(next_instr),
       .NOP(NOP)
     ); 
@@ -243,13 +249,13 @@ module proc (/*AUTOARG*/
                      .aluOut(aluOut), 
                      .outData(outData), 
                      .specOps(specOps), 
-                     .brControl(brControl), 
-                     .setControl(setControl));
+                     .brControl(DX_brControl), 
+                     .setControl(DX_setControl));
 
    XM_pipe XM_PIPELINE(.clk(clk), .rst(rst), 
                .DX_instr(DX_instr), .XM_instr(XM_instr),
                .next_pc(next_pc), .XM_next_pc(XM_next_pc), 
-               .pc_inc(pc_inc), .XM_pc_inc(XM_pc_inc),
+               .pc_inc(DX_pc_inc), .XM_pc_inc(XM_pc_inc),
                .aluOut(aluOut), .XM_aluOut(XM_aluOut), 
                .outData(outData), .XM_writeData(XM_writeData), 
                .specOps(specOps), .XM_specOps(XM_specOps),
