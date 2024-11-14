@@ -114,6 +114,8 @@ module proc (/*AUTOARG*/
    wire        XM_memWrite, 
                XM_memRead,
                XM_regWrite,
+               XM_jump,
+               XM_br,
                XM_halt;
    wire [1:0]  XM_regSrc;
    wire [2:0]  XM_writeReg;
@@ -123,6 +125,8 @@ module proc (/*AUTOARG*/
 
    //  ---------- MW_ latch singals ---------- 
    wire        MW_regWrite,
+               MW_br,
+               MW_jump,
                MW_halt;
    wire [1:0]  MW_regSrc;
    wire [2:0]  MW_writeReg;
@@ -134,9 +138,9 @@ module proc (/*AUTOARG*/
 
    // instantiate fetch module
    fetch FETCH(.clk(clk), .rst(rst), .halt(MW_halt), 
-               .branch_or_jump(DX_brControl[2] | DX_jump),
+               .branch_or_jump(MW_br | MW_jump),
                .NOP(NOP),
-               .PC(next_pc), // TODO is this correct stage of next_pc?
+               .PC(MW_next_pc), // TODO is this correct stage of next_pc?
                .pc_plus_two(pc_inc),
                .pc_inc(pc_inc), 
                .instr(instr),
@@ -155,7 +159,8 @@ module proc (/*AUTOARG*/
       .XM_regWrite(XM_regWrite),
       .FD_br_or_j(brControl[2] | jump),
       .DX_br_or_j(DX_brControl[2] | DX_jump),
-      // .XM_br_or_j(DX),
+      .XM_br_or_j(XM_br | XM_jump), // TODO
+      .MW_br_or_j(MW_br | MW_jump), // TODO
       .next_instr(next_instr),
       .NOP(NOP)
     ); 
@@ -164,8 +169,6 @@ module proc (/*AUTOARG*/
                .instr(next_instr), .FD_instr(FD_instr), 
                .pc_inc(pc_inc), .FD_pc_inc(FD_pc_inc),
                .valid(valid), .FD_valid(FD_valid));
-
-   //latch signal from fetch to decode are the denoted by "FD_"
 
    decode DECODE( .clk(clk), .rst(rst), 
                   .instr(FD_instr), 
@@ -263,7 +266,9 @@ module proc (/*AUTOARG*/
                .DX_memRead(DX_memRead), .XM_memRead(XM_memRead), 
                .DX_regSrc(DX_regSrc), .XM_regSrc(XM_regSrc),
                .DX_regWrite(DX_regWrite), .XM_regWrite(XM_regWrite),
-               .DX_writeReg(DX_writeReg), .XM_writeReg(XM_writeReg), 
+               .DX_writeReg(DX_writeReg), .XM_writeReg(XM_writeReg),
+               .DX_jump(DX_jump), .XM_jump(XM_jump),
+               .DX_br(DX_brControl[2]), .XM_br(XM_br),
                .DX_halt(DX_halt), .XM_halt(XM_halt));
 
    memory MEMORY( .clk(clk), .rst(rst), 
@@ -283,6 +288,8 @@ module proc (/*AUTOARG*/
                .XM_pc_inc(XM_pc_inc), .MW_pc_inc(MW_pc_inc),
                .XM_regWrite(XM_regWrite), .MW_regWrite(MW_regWrite),
                .XM_writeReg(XM_writeReg), .MW_writeReg(MW_writeReg),
+               .XM_jump(XM_jump), .MW_jump(MW_jump),
+               .XM_br(XM_br), .MW_br(MW_br),
                .XM_halt(XM_halt), .MW_halt(MW_halt));   
 
    wb WRITEBACK(  .regSrc(MW_regSrc), 
