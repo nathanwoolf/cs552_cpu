@@ -1,0 +1,3 @@
+/home/gehrt/private/cs552/cs552_cpu/project/demo2/verification/mytests/custom_test_0.asm SUCCESS CPI:4.1 CYCLES:37 ICOUNT:9 IHITRATE: 0 DHITRATE: 0
+/home/gehrt/private/cs552/cs552_cpu/project/demo2/verification/mytests/custom_test_1.asm SUCCESS CPI:3.3 CYCLES:30 ICOUNT:9 IHITRATE: 0 DHITRATE: 0
+/home/gehrt/private/cs552/cs552_cpu/project/demo2/verification/mytests/custom_test_2.asm SUCCESS CPI:3.0 CYCLES:15 ICOUNT:5 IHITRATE: 100.0 DHITRATE: 100.0
