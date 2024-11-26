@@ -18,11 +18,11 @@ module mem_system(/*AUTOARG*/
    input wire        clk;
    input wire        rst;
    
-   output reg [15:0] DataOut;
-   output reg        Done;
-   output reg        Stall;
-   output reg        CacheHit;
-   output reg        err;
+   output wire [15:0] DataOut;
+   output wire        Done;
+   output wire        Stall;
+   output wire        CacheHit;
+   output wire        err;
 
    // Cache Outputs
    wire [15:0] cache_data_out;
@@ -32,7 +32,7 @@ module mem_system(/*AUTOARG*/
    // Cache Inputs
    wire [7:0] cache_index;
    wire [2:0] cache_offset;
-   wire [15:0] cache_data_in
+   wire [15:0] cache_data_in;
    wire cache_comp, cache_write, cache_valid_in, cache_enable;
 
    // Mem Outputs
@@ -41,7 +41,7 @@ module mem_system(/*AUTOARG*/
    wire mem_stall, mem_err;
 
    // Mem Inputs
-   wire [15:0] mem_addr, mem_data_in
+   wire [15:0] mem_addr, mem_data_in;
    wire mem_wr, mem_rd;
    
    // Controller Outputs for DataOut
@@ -110,7 +110,7 @@ module mem_system(/*AUTOARG*/
                      .Done                  (Done), 
                      .Stall                 (Stall), 
                      .CacheHit              (CacheHit), 
-                     .State                 (State)
+                     .State                 (State),
 
                      // Inputs
                      .clk                   (clk),
@@ -132,9 +132,10 @@ module mem_system(/*AUTOARG*/
                      .mem_data_out          (mem_data_out));
 
 
-   // TODO add flop/latch for DataOut
 
    assign DataOut = State ? control_DataOut : temp_DataOut;
+
+   dff DATA[15:0](.q(temp_DataOut), .d(control_DataOut), .clk(clk), .rst(rst)); // TODO check this
 
 endmodule // mem_system
 `default_nettype wire
