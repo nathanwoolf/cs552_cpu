@@ -100,13 +100,12 @@ module cache_control(
 
         case(state)
             IDLE: begin
-                nxt_state = (Rd) ? COMPARE_READ : (Wr) ? COMPARE_READ : IDLE;
 
                 wr_ff_d = 1'b0;
                 rd_ff_d = 1'b0;
+                nxt_state = (Rd) ? COMPARE_READ : (Wr) ? COMPARE_READ : IDLE;
             end
             COMPARE_READ: begin
-                nxt_state = (cache_valid) ? (cache_hit) ? DONE : (cache_dirty) ? ACCESS_READ_1 : ACCESS_WRITE_1 : ACCESS_WRITE_1;
 
                 cache_tag_in =  Addr[15:11];
                 cache_index = Addr[10:3];
@@ -118,9 +117,9 @@ module cache_control(
 
                 hit_ff_d = 1'b1;
                 rd_ff_d = 1'b1;
+                nxt_state = (cache_valid) ? (cache_hit) ? DONE : (cache_dirty) ? ACCESS_READ_1 : ACCESS_WRITE_1 : ACCESS_WRITE_1;
             end
             COMPARE_WRITE: begin
-                nxt_state = (cache_valid) ? (cache_hit) ? DONE : (cache_dirty) ? ACCESS_READ_1 : ACCESS_WRITE_1 : ACCESS_WRITE_1;
 
                 cache_tag_in =  Addr[15:11];
                 cache_index = Addr[10:3];
@@ -133,9 +132,9 @@ module cache_control(
 
                 hit_ff_d = 1'b1;
                 wr_ff_d = 1'b1;
+                nxt_state = (cache_valid) ? (cache_hit) ? DONE : (cache_dirty) ? ACCESS_READ_1 : ACCESS_WRITE_1 : ACCESS_WRITE_1;
             end
             ACCESS_READ_1: begin
-                nxt_state = ACCESS_READ_2;
 
                 mem_addr = {cache_tag_out, Addr[10:3], 3'b000};
                 cache_offset = 3'b000;
@@ -143,9 +142,9 @@ module cache_control(
                 cache_enable = 1'b1;
                 mem_wr = 1'b1;
                 mem_data_in = cache_data_out;
+                nxt_state = ACCESS_READ_2;
             end
             ACCESS_READ_2: begin
-                nxt_state = ACCESS_READ_3;
 
                 mem_addr = {cache_tag_out, Addr[10:3], 3'b010};
                 cache_offset = 3'b010;
@@ -153,9 +152,9 @@ module cache_control(
                 cache_enable = 1'b1;
                 mem_wr = 1'b1;
                 mem_data_in = cache_data_out;
+                nxt_state = ACCESS_READ_3;
             end
             ACCESS_READ_3: begin
-                nxt_state = ACCESS_READ_4;
 
                 mem_addr = {cache_tag_out, Addr[10:3], 3'b100};
                 cache_offset = 3'b100;
@@ -163,9 +162,9 @@ module cache_control(
                 cache_enable = 1'b1;
                 mem_wr = 1'b1;
                 mem_data_in = cache_data_out;
+                nxt_state = ACCESS_READ_4;
             end
             ACCESS_READ_4: begin
-                nxt_state = ACCESS_WRITE_1;
 
                 mem_addr = {cache_tag_out, Addr[10:3], 3'b110};
                 cache_offset = 3'b110;
@@ -173,24 +172,24 @@ module cache_control(
                 cache_enable = 1'b1;
                 mem_wr = 1'b1;
                 mem_data_in = mem_data_in;
+                nxt_state = ACCESS_WRITE_1;
             end
             ACCESS_WRITE_1: begin
-                nxt_state = ACCESS_WRITE_2;
 
                 cache_enable = 1'b1;
                 mem_rd = 1'b1;
                 mem_addr = {Addr[15:3],3'b000};
                 hit_ff_d = 1'b0;
+                nxt_state = ACCESS_WRITE_2;
             end
             ACCESS_WRITE_2: begin
-                nxt_state = ACCESS_WRITE_3;
 
                 cache_enable = 1'b1;
                 mem_rd = 1'b1;
                 mem_addr = {Addr[15:3],3'b010};
+                nxt_state = ACCESS_WRITE_3;
             end
             ACCESS_WRITE_3: begin
-                nxt_state = ACCESS_WRITE_4;
 
                 cache_enable = 1'b1;
                 mem_rd = 1'b1;
@@ -205,9 +204,9 @@ module cache_control(
 
                 cache_data_in = (Wr & (Addr[2:0] === 3'b000)) ? DataIn : mem_data_out;
                 control_DataOut = (Rd & (Addr[2:0] === 3'b000)) ? mem_data_out : temp_DataOut;
+                nxt_state = ACCESS_WRITE_4;
             end
             ACCESS_WRITE_4: begin
-                nxt_state = ACCESS_WRITE_5;
 
                 cache_enable = 1'b1;
                 mem_rd = 1'b1;
@@ -222,9 +221,9 @@ module cache_control(
 
                 cache_data_in = (Wr & (Addr[2:0] === 3'b010)) ? DataIn : mem_data_out;
                 control_DataOut = (Rd & (Addr[2:0] === 3'b010)) ? mem_data_out : temp_DataOut;
+                nxt_state = ACCESS_WRITE_5;
             end
             ACCESS_WRITE_5: begin
-                nxt_state = ACCESS_WRITE_6;
 
                 cache_enable = 1'b1;
                 
@@ -237,9 +236,9 @@ module cache_control(
 
                 cache_data_in = (Wr & (Addr[2:0] === 3'b100)) ? DataIn : mem_data_out;
                 control_DataOut = (Rd & (Addr[2:0] === 3'b100)) ? mem_data_out : temp_DataOut;
+                nxt_state = ACCESS_WRITE_6;
             end
             ACCESS_WRITE_6: begin
-                nxt_state = IDLE; // IDLE?
 
                 cache_enable = 1'b1;
                 cache_write = 1'b1;
@@ -250,17 +249,18 @@ module cache_control(
                 cache_index = Addr[10:3];
                 cache_offset = 3'b110;
                 
-                cache_data_in = (Wr & (Addr[2:0] === 3'b110)) ? DataIn : mem_data_out;
-                control_DataOut = (Rd & (Addr[2:0] === 3'b110)) ? mem_data_out : temp_DataOut;
+                cache_data_in = (wr_ff_q & (Addr[2:0] === 3'b110)) ? DataIn : mem_data_out;
+                control_DataOut = (rd_ff_q & (Addr[2:0] === 3'b110)) ? mem_data_out : temp_DataOut;
                 
                 Done = 1'b1;
                 State = 1'b1;
+                nxt_state = IDLE; // IDLE?
             end
             DONE: begin
-                nxt_state = IDLE;
 
                 Done = 1'b1;
                 CacheHit = hit_ff_q;
+                nxt_state = IDLE;
             end
             default:
                 nxt_state = IDLE; // TODO?
