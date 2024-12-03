@@ -117,7 +117,7 @@ module mem_system(/*AUTOARG*/
                      .rst                   (rst),
                      .createdump            (createdump),
                      
-                     .temp_DataOut          (temp_DataOut), // TODO ? 
+                     .temp_DataOut          (temp_DataOut),
                      .Addr                  (Addr),
                      .DataIn                (DataIn),
                      .Rd                    (Rd),
@@ -135,7 +135,7 @@ module mem_system(/*AUTOARG*/
 
    assign DataOut = State ? control_DataOut : temp_DataOut;
 
-   dff DATA[15:0](.q(temp_DataOut), .d(control_DataOut), .clk(clk), .rst(rst)); // TODO check this
+   dff DATA[15:0](.q(temp_DataOut), .d(control_DataOut), .clk(clk), .rst(rst));
 
 endmodule // mem_system
 `default_nettype wire
