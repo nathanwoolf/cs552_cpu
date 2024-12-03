@@ -76,11 +76,11 @@ module cache_control(
 
         cache_enable = 1'b0;
         cache_valid_in = 1'b0; 
-        cache_tag_in = 5'hxx;
-        cache_index = 8'hxx;
-        cache_offset = 3'hx;
+        cache_tag_in = 5'hxxxx;
+        cache_index = 8'hxxxxxxxx;
+        cache_offset = 3'hxxx;
         
-        cache_data_in = 16'hxxx;
+        cache_data_in = 16'hxxxxxxxxxxxxxxxx;
 
         cache_comp = 1'b0;           
         cache_write = 1'b0;     
@@ -88,22 +88,22 @@ module cache_control(
 
         mem_wr = 1'b0;
         mem_rd = 1'b0;
-        mem_addr = 16'hxxxx;
-        mem_data_in = 16'hxxxx;
+        mem_addr = 16'hxxxxxxxxxxxxxxxx;
+        mem_data_in = 16'hxxxxxxxxxxxxxxxx;
 
 
-        control_DataOut = 16'h0000;
+        // control_DataOut = 16'h0000;
         Done = 1'b0;
-        Stall = 1'b0; // TODO Check num stalls?
+        Stall = 1'b1; // TODO Check num stalls?
         CacheHit = 1'b0;
         State = 1'b0;
 
         case(state)
             IDLE: begin
-
+                Stall = 1'b0;
                 wr_ff_d = 1'b0;
                 rd_ff_d = 1'b0;
-                nxt_state = (Rd) ? COMPARE_READ : (Wr) ? COMPARE_READ : IDLE;
+                nxt_state = Rd ? (COMPARE_READ) : (Wr ? (COMPARE_WRITE) : (IDLE));
             end
             COMPARE_READ: begin
 
@@ -171,7 +171,7 @@ module cache_control(
                 cache_index = Addr[10:3];
                 cache_enable = 1'b1;
                 mem_wr = 1'b1;
-                mem_data_in = mem_data_in;
+                mem_data_in = cache_data_out;
                 nxt_state = ACCESS_WRITE_1;
             end
             ACCESS_WRITE_1: begin
@@ -262,8 +262,6 @@ module cache_control(
                 CacheHit = hit_ff_q;
                 nxt_state = IDLE;
             end
-            default:
-                nxt_state = IDLE; // TODO?
         endcase
 
     end
