@@ -6,9 +6,25 @@
                      processor.
 */
 `default_nettype none
-module memory (/* TODO: Add appropriate inputs/outputs for your memory stage here*/);
+module memory (input wire clk,
+               input wire rst,
+               input wire memWrite,
+               input wire memRead,
+               input wire [15:0]aluOut,
+               input wire [15:0]writeData,
+               input wire halt,
+               output wire [15:0]readData);
 
-   // TODO: Your code here
-   
+   // TODO We do not use memRead currently.
+
+
+   wire enable;
+   assign enable = ~halt;
+
+   memory2c instruction_mem( .data_out(readData), .data_in(writeData), .addr(aluOut), 
+                              .enable(enable), .wr(memWrite), .createdump(halt), 
+                              .clk(clk), .rst(rst)); 
+
+
 endmodule
 `default_nettype wire
