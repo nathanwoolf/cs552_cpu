@@ -25,7 +25,7 @@ module DX_pipe(
     input wire [15:0]read2Data,         output wire [15:0]DX_read2Data,
     input wire regWrite,                output wire DX_regWrite,
     input wire [2:0]writeReg,           output wire [2:0]DX_writeReg, 
-    input wire halt,                    output wire DX_halt 
+    input wire halt,                    output wire DX_halt
     ); 
 
 dff INSTR[15:0](.d(FD_instr), .q(DX_instr), .clk(clk), .rst(rst));

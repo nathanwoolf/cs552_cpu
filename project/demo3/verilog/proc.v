@@ -61,7 +61,9 @@ module proc (/*AUTOARG*/
                regWrite;
    wire [2:0]  brControl, 
                aluOp,
-               writeReg;
+               writeReg, 
+               read1Reg, 
+               read2Reg;
    wire [15:0] aluA, 
                aluB, 
                imm11_ext, 
