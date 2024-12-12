@@ -12,6 +12,8 @@ module hazard_unit(
     input wire DX_br_or_j,
     input wire XM_br_or_j,
     input wire MW_br_or_j,
+    input wire [1:0]forwardA, 
+    input wire [1:0]forwardB,
     output wire [15:0]next_instr,
     output wire NOP
 );
@@ -55,6 +57,6 @@ assign NOP = (FD_instr !== 16'b0000) ? (
                     (read_RD & ((FD_regWrite & FD_writeReg == instr[7:5]) | (DX_regWrite & DX_writeReg == instr[7:5]) | (XM_regWrite & XM_writeReg == instr[7:5])))
                 ) : 1'b0;
 
-assign next_instr = NOP ? 16'h0800 : instr;
+assign next_instr = (NOP & (forwardA != 1'b11) & (forwardB != 1'b11)) ? 16'h0800 : instr;
 
 endmodule

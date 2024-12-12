@@ -38,7 +38,6 @@ module execute (  input wire clk,
 
    branch_cmd BRANCHCOMMAND(.brControl(brControl), .ZF(ZF), .SF(SF), .brSel(brSel));
 
-
    alu ALU( .InA(aluA), .InB(aluB), .Cin(cin), .Oper(aluOp), .invA(invA), 
             .invB(invB), .sign(1'b1), .Out(aluOut), .Ofl(OF), .Zero(ZF), .SF(SF), .CF(CF));
 
@@ -73,6 +72,7 @@ module execute (  input wire clk,
 
    // JmpSel Mux
    wire [15:0]JmpVal;
+
    alu ADDER(.InA(PC), .InB(JmpSrc), .Cin(1'b0), .Oper(3'b000), .invA(1'b0), .invB(1'b0), .sign(1'b0), .Out(JmpVal), .Ofl(), .Zero(), .SF(), .CF());
 
    wire [15:0]BrVal;

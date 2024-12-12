@@ -138,6 +138,10 @@ module proc (/*AUTOARG*/
                MW_aluOut,
                MW_specOps;
 
+   // data forwarding control signals
+   wire [1:0]  forwardA, 
+               forwardB;
+
    // instantiate fetch module
    fetch FETCH(.clk(clk), .rst(rst), .halt(MW_halt), 
                .branch_or_jump(MW_br | MW_jump),
@@ -166,6 +170,14 @@ module proc (/*AUTOARG*/
       .next_instr(next_instr),
       .NOP(NOP)
     ); 
+       
+   forwarding FORWARD(.DX_instr(DX_instr), 
+                      .MW_rd(MW_writeReg), 
+                      .MW_regWrite(MW_regWrite),      //rgWrite is the one bit control signal
+                      .XM_rd(XM_writeReg), 
+                      .XM_regWrite(XM_regWrite), 
+                      .forwardA(forwardA), 
+                      .forwardB(forwardB));
 
    FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), 
                .instr(next_instr), .FD_instr(FD_instr), 
