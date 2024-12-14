@@ -24,10 +24,6 @@ module proc (/*AUTOARG*/
    
    /* your code here -- should include instantiations of fetch, decode, execute, mem and wb modules */
 
-   /* README
-    * Matthew - propogate regDest, regWrite, and writeData through all flops, come out of wb and into FD latch
-    *
-    */
    wire [1:0]regDest;
    // ---------- fetch I/O ----------
    wire halt, valid, NOP;  
@@ -143,10 +139,6 @@ module proc (/*AUTOARG*/
                MW_aluOut,
                MW_specOps;
 
-   // data forwarding control signals
-   wire [1:0]  forwardA, 
-               forwardB;
-
    // instantiate fetch module
    fetch FETCH(.clk(clk), .rst(rst), .halt(MW_halt), 
                .branch_or_jump(MW_br | MW_jump),
@@ -249,7 +241,25 @@ module proc (/*AUTOARG*/
                      .forward_XX_A(forward_XX_A), .forward_XX_B(forward_XX_B),
                      .forward_XM_A(forward_XM_A), .forward_XM_B(forward_XM_B),
                      .forward_XX_sel(forward_XX_sel), .forward_XM_sel(forward_XM_sel), .next_instr(next_instr), .NOP(NOP)
-   );                       
+   );
+
+    wire FD_forward_XX_A, FD_forward_XX_B, FD_forward_XM_A, FD_forward_XM_B,
+        DX_forward_XX_A, DX_forward_XX_B, DX_forward_XM_A, DX_forward_XM_B;
+    wire [1:0] FD_forward_XX_sel, FD_forward_XM_sel, DX_forward_XX_sel, DX_forward_XM_sel;
+
+    dff DFF1(.q(FD_forward_XX_A), .d(forward_XX_A), .clk(clk), .rst(rst));
+    dff DFF2(.q(FD_forward_XX_B), .d(forward_XX_B), .clk(clk), .rst(rst));
+    dff DFF3(.q(FD_forward_XM_A), .d(forward_XM_A), .clk(clk), .rst(rst));
+    dff DFF4(.q(FD_forward_XM_B), .d(forward_XM_B), .clk(clk), .rst(rst));
+    dff DFF5[1:0](.q(FD_forward_XX_sel), .d(forward_XX_sel), .clk(clk), .rst(rst));
+    dff DFF6[1:0](.q(FD_forward_XM_sel), .d(forward_XM_sel), .clk(clk), .rst(rst));
+
+    dff DFF7(.q(DX_forward_XX_A), .d(FD_forward_XX_A), .clk(clk), .rst(rst));
+    dff DFF8(.q(DX_forward_XX_B), .d(FD_forward_XX_B), .clk(clk), .rst(rst));
+    dff DFF9(.q(DX_forward_XM_A), .d(FD_forward_XM_A), .clk(clk), .rst(rst));
+    dff DFF10(.q(DX_forward_XM_B), .d(FD_forward_XM_B), .clk(clk), .rst(rst));
+    dff DFF11[1:0](.q(DX_forward_XX_sel), .d(FD_forward_XX_sel), .clk(clk), .rst(rst));
+    dff DFF12[1:0](.q(DX_forward_XM_sel), .d(FD_forward_XM_sel), .clk(clk), .rst(rst));
 
    execute EXECUTE( .clk(clk), .rst(rst), 
                      .PC(DX_pc_inc), 
@@ -275,9 +285,9 @@ module proc (/*AUTOARG*/
                      .specOps(specOps), 
                      .brControl(DX_brControl), 
                      .setControl(DX_setControl),
-                     .forward_XX_A(forward_XX_A), .forward_XX_B(forward_XX_B),
-                     .forward_XM_A(forward_XM_A), .forward_XM_B(forward_XM_B),
-                     .forward_XX_sel(forward_XX_sel), .forward_XM_sel(forward_XM_sel),
+                     .forward_XX_A(DX_forward_XX_A), .forward_XX_B(DX_forward_XX_B),
+                     .forward_XM_A(DX_forward_XM_A), .forward_XM_B(DX_forward_XM_B),
+                     .forward_XX_sel(DX_forward_XX_sel), .forward_XM_sel(DX_forward_XM_sel),
                      .XM_specOps(XM_specOps), .XM_pc_inc(XM_pc_inc), .XM_aluOut(XM_aluOut),
                      .MW_specOps(MW_specOps), .MW_pc_inc(MW_pc_inc),
                      .MW_readMemData(MW_readMemData), .MW_aluOut(MW_aluOut)

@@ -97,18 +97,18 @@ module execute (  input wire clk,
       // brOrJmp Mux
       assign next_pc = (aluJump) ? aluOut : BrVal;
 
-      // 4 : 1 for XM FWD?
-      wire [15:0]XM_SEL_VAL;
-      assign XM_SEL_VAL =     (forward_XX_sel == 2'b00) ? XM_specOps :
+      // 4 : 1 for XX FWD?
+      wire [15:0]XX_SEL_VAL;
+      assign XX_SEL_VAL =     (forward_XX_sel == 2'b00) ? XM_specOps :
                               (forward_XX_sel == 2'b01) ? XM_pc_inc :
                               (forward_XX_sel == 2'b11) ? XM_aluOut :
                               16'b0000;
 
-      // 4 : 1 for XX FWD?
-      wire [15:0]XX_SEL_VAL;
-      assign XX_SEL_VAL =     (forward_XX_sel == 2'b00) ? MW_specOps :
-                              (forward_XX_sel == 2'b01) ? MW_pc_inc :
-                              (forward_XX_sel == 2'b10) ? MW_readMemData :
+      // 4 : 1 for XM FWD?
+      wire [15:0]XM_SEL_VAL;
+      assign XM_SEL_VAL =     (forward_XM_sel == 2'b00) ? MW_specOps :
+                              (forward_XM_sel == 2'b01) ? MW_pc_inc :
+                              (forward_XM_sel == 2'b10) ? MW_readMemData :
                               MW_aluOut;
 
       // 2 : 1 for XX A

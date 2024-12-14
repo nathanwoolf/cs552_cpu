@@ -57,7 +57,7 @@ module decode (input wire clk,
 
    // outputs from reg file go to alusrc1 and alusrc2 -> need to mux read2Data with other signals
    wire err; 
-   regFile REGFILE(.read1RegSel(instr[10:8]), .read2RegSel(instr[7:5]), .writeData(writeData), 
+   regFile_bypass REGFILE(.read1RegSel(instr[10:8]), .read2RegSel(instr[7:5]), .writeData(writeData), 
                         .writeEn(MW_regWrite), .read1Data(aluA), .read2Data(read2Data), .writeRegSel(MW_writeReg),
                         .err(err), .clk(clk), .rst(rst)); 
 
