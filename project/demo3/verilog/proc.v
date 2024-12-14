@@ -24,131 +24,143 @@ module proc (/*AUTOARG*/
    
    /* your code here -- should include instantiations of fetch, decode, execute, mem and wb modules */
 
-   wire [1:0]regDest;
-   // ---------- fetch I/O ----------
-   wire halt, valid, NOP;  
-   wire [15:0] instr,
-               next_instr,  
-               next_pc,
-               pc_inc;
-   
-   // ---------- decode I/O ----------
+    wire [1:0]regDest;
+    // ---------- fetch I/O ----------
+    wire halt, valid, NOP;  
+    wire [15:0] instr,
+                next_instr,  
+                next_pc,
+                pc_inc;
 
-   //  ---------- DX_ latch singals ----------  
-   wire FD_valid;
-   wire [15:0] FD_instr, 
-               FD_pc_inc;
+    // ---------- decode I/O ----------
 
-   // control signals used outside of DECODE stage
-   wire [1:0]  regSrc,
-               setControl;
-   wire        memWrite,
-               memRead, 
-               aluJump,
-               jump, 
-               immSrc, 
-               invA, 
-               invB, 
-               cin, 
-               STU, 
-               BTR, 
-               LBI,
-               setIf,
-               regWrite;
-   wire [2:0]  brControl, 
-               aluOp,
-               writeReg;
-   wire [15:0] aluA, 
-               aluB, 
-               imm11_ext, 
-               imm8_ext, 
-               read2Data;
+    //  ---------- DX_ latch singals ----------  
+    wire FD_valid,
+        FD_forward_XX_A,
+        FD_forward_XX_B,
+        FD_forward_XM_A,
+        FD_forward_XM_B;
+    wire [1:0] FD_forward_XX_sel,
+                FD_forward_XM_sel;
+    wire [15:0] FD_instr, 
+                FD_pc_inc;
 
-   //  ---------- DX_ latch singals ----------  
+    // control signals used outside of DECODE stage
+    wire [1:0]  regSrc,
+                setControl;
+    wire        memWrite,
+                memRead, 
+                aluJump,
+                jump, 
+                immSrc, 
+                invA, 
+                invB, 
+                cin, 
+                STU, 
+                BTR, 
+                LBI,
+                setIf,
+                regWrite;
+    wire [2:0]  brControl, 
+                aluOp,
+                writeReg;
+    wire [15:0] aluA, 
+                aluB, 
+                imm11_ext, 
+                imm8_ext, 
+                read2Data;
 
-   // control signals used outside of DECODE stage
-   wire [1:0]  DX_regSrc,
-               DX_setControl;
-   wire        DX_memWrite,
-               DX_memRead, 
-               DX_aluJump,
-               DX_jump, 
-               DX_immSrc, 
-               DX_invA, 
-               DX_invB, 
-               DX_cin, 
-               DX_STU, 
-               DX_BTR, 
-               DX_LBI,
-               DX_setIf,
-               DX_regWrite, 
-               DX_halt;
-   wire [2:0]  DX_brControl, 
-               DX_aluOp,
-               DX_writeReg;
-   wire [15:0] DX_aluA, 
-               DX_aluB, 
-               DX_imm11_ext, 
-               DX_imm8_ext, 
-               DX_read2Data,
-               DX_pc_inc,
-               DX_instr;    
+    //  ---------- DX_ latch singals ----------  
 
-   // ---------- execute I/O ----------
-   wire        forward_XX_A,
-               forward_XX_B,
-               forward_XM_A,
-               forward_XM_B;
-   wire [1:0]  forward_XX_sel,
-               forward_XM_sel;
+    // control signals used outside of DECODE stage
+    wire [1:0]  DX_regSrc,
+                DX_setControl,
+                DX_forward_XX_sel,
+                 DX_forward_XM_sel;
+    wire        DX_memWrite,
+                DX_memRead, 
+                DX_aluJump,
+                DX_jump, 
+                DX_immSrc, 
+                DX_invA, 
+                DX_invB, 
+                DX_cin, 
+                DX_STU, 
+                DX_BTR, 
+                DX_LBI,
+                DX_setIf,
+                DX_regWrite, 
+                DX_halt,
+                DX_forward_XX_A, 
+                DX_forward_XX_B, 
+                DX_forward_XM_A, 
+                DX_forward_XM_B;
+    wire [2:0]  DX_brControl, 
+                DX_aluOp,
+                DX_writeReg;
+    wire [15:0] DX_aluA, 
+                DX_aluB, 
+                DX_imm11_ext, 
+                DX_imm8_ext, 
+                DX_read2Data,
+                DX_pc_inc,
+                DX_instr;    
 
-   wire [15:0] aluOut, 
-               writeData, 
-               specOps, 
-               outData;
+    // ---------- execute I/O ----------
+    wire        forward_XX_A,
+                forward_XX_B,
+                forward_XM_A,
+                forward_XM_B;
+    wire [1:0]  forward_XX_sel,
+                forward_XM_sel;
 
-   //  ---------- XM_ latch singals ---------- 
-   wire [15:0] XM_aluOut, 
-               XM_specOps, 
-               XM_writeData,      //turns into writeData in WB
-               XM_next_pc, 
-               XM_pc_inc,
-               XM_instr;    
-   wire        XM_memWrite, 
-               XM_memRead,
-               XM_regWrite,
-               XM_jump,
-               XM_br,
-               XM_halt;
-   wire [1:0]  XM_regSrc;
-   wire [2:0]  XM_writeReg;
+    wire [15:0] aluOut, 
+                writeData, 
+                specOps, 
+                outData;
 
-   // ---------- memory I/O ----------
-   wire [15:0] readData;
+    //  ---------- XM_ latch singals ---------- 
+    wire [15:0] XM_aluOut, 
+                XM_specOps, 
+                XM_writeData,      //turns into writeData in WB
+                XM_next_pc, 
+                XM_pc_inc,
+                XM_instr;    
+    wire        XM_memWrite, 
+                XM_memRead,
+                XM_regWrite,
+                XM_jump,
+                XM_br,
+                XM_halt;
+    wire [1:0]  XM_regSrc;
+    wire [2:0]  XM_writeReg;
 
-   //  ---------- MW_ latch singals ---------- 
-   wire        MW_regWrite,
-               MW_br,
-               MW_jump,
-               MW_halt;
-   wire [1:0]  MW_regSrc;
-   wire [2:0]  MW_writeReg;
-   wire [15:0] MW_next_pc, 
-               MW_pc_inc,
-               MW_readMemData, 
-               MW_aluOut,
-               MW_specOps;
+    // ---------- memory I/O ----------
+    wire [15:0] readData;
 
-   // instantiate fetch module
-   fetch FETCH(.clk(clk), .rst(rst), .halt(MW_halt), 
-               .branch_or_jump(MW_br | MW_jump),
-               .NOP(NOP),
-               .PC(MW_next_pc), // TODO is this correct stage of next_pc?
-               .pc_plus_two(pc_inc),
-               .pc_inc(pc_inc), 
-               .instr(instr),
-               .valid(valid), 
-               .err());
+    //  ---------- MW_ latch singals ---------- 
+    wire        MW_regWrite,
+                MW_br,
+                MW_jump,
+                MW_halt;
+    wire [1:0]  MW_regSrc;
+    wire [2:0]  MW_writeReg;
+    wire [15:0] MW_next_pc, 
+                MW_pc_inc,
+                MW_readMemData, 
+                MW_aluOut,
+                MW_specOps;
+
+    // instantiate fetch module
+    fetch FETCH(.clk(clk), .rst(rst), .halt(MW_halt), 
+                .branch_or_jump(MW_br | MW_jump),
+                .NOP(NOP),
+                .PC(MW_next_pc), // TODO is this correct stage of next_pc?
+                .pc_plus_two(pc_inc),
+                .pc_inc(pc_inc), 
+                .instr(instr),
+                .valid(valid), 
+                .err());
 
    // hazard_unit HAZARD(
    //    .instr(instr),
@@ -171,7 +183,13 @@ module proc (/*AUTOARG*/
    FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), 
                .instr(next_instr), .FD_instr(FD_instr), 
                .pc_inc(pc_inc), .FD_pc_inc(FD_pc_inc),
-               .valid(valid), .FD_valid(FD_valid));
+               .valid(valid), .FD_valid(FD_valid),
+               .forward_XX_A(forward_XX_A), .FD_forward_XX_A(FD_forward_XX_A),
+               .forward_XX_B(forward_XX_B), .FD_forward_XX_B(FD_forward_XX_B),
+               .forward_XM_A(forward_XM_A), .FD_forward_XM_A(FD_forward_XM_A),
+               .forward_XM_B(forward_XM_B), .FD_forward_XM_B(FD_forward_XM_B),
+               .forward_XX_sel(forward_XX_sel), .FD_forward_XX_sel(FD_forward_XX_sel),
+               .forward_XM_sel(forward_XM_sel), .FD_forward_XM_sel(FD_forward_XM_sel));
 
    decode DECODE( .clk(clk), .rst(rst), 
                   .instr(FD_instr), 
@@ -231,7 +249,13 @@ module proc (/*AUTOARG*/
                .read2Data(read2Data), .DX_read2Data(DX_read2Data),
                .regWrite(regWrite), .DX_regWrite(DX_regWrite),
                .writeReg(writeReg), .DX_writeReg(DX_writeReg),
-               .halt(halt), .DX_halt(DX_halt));            
+               .halt(halt), .DX_halt(DX_halt),
+               .FD_forward_XX_A(FD_forward_XX_A), .DX_forward_XX_A(DX_forward_XX_A),
+               .FD_forward_XX_B(FD_forward_XX_B), .DX_forward_XX_B(DX_forward_XX_B),
+               .FD_forward_XM_A(FD_forward_XM_A), .DX_forward_XM_A(DX_forward_XM_A),
+               .FD_forward_XM_B(FD_forward_XM_B), .DX_forward_XM_B(DX_forward_XM_B),
+               .FD_forward_XX_sel(FD_forward_XX_sel), .DX_forward_XX_sel(DX_forward_XX_sel),
+               .FD_forward_XM_sel(FD_forward_XM_sel), .DX_forward_XM_sel(DX_forward_XM_sel));            
 
    forwarding FORWARD(.FD_instr(FD_instr), .DX_instr(DX_instr),
                      .FD_br_or_j(brControl[2] | jump), .DX_br_or_j(DX_brControl[2] | DX_jump),
@@ -242,24 +266,6 @@ module proc (/*AUTOARG*/
                      .forward_XM_A(forward_XM_A), .forward_XM_B(forward_XM_B),
                      .forward_XX_sel(forward_XX_sel), .forward_XM_sel(forward_XM_sel), .next_instr(next_instr), .NOP(NOP)
    );
-
-    wire FD_forward_XX_A, FD_forward_XX_B, FD_forward_XM_A, FD_forward_XM_B,
-        DX_forward_XX_A, DX_forward_XX_B, DX_forward_XM_A, DX_forward_XM_B;
-    wire [1:0] FD_forward_XX_sel, FD_forward_XM_sel, DX_forward_XX_sel, DX_forward_XM_sel;
-
-    dff DFF1(.q(FD_forward_XX_A), .d(forward_XX_A), .clk(clk), .rst(rst));
-    dff DFF2(.q(FD_forward_XX_B), .d(forward_XX_B), .clk(clk), .rst(rst));
-    dff DFF3(.q(FD_forward_XM_A), .d(forward_XM_A), .clk(clk), .rst(rst));
-    dff DFF4(.q(FD_forward_XM_B), .d(forward_XM_B), .clk(clk), .rst(rst));
-    dff DFF5[1:0](.q(FD_forward_XX_sel), .d(forward_XX_sel), .clk(clk), .rst(rst));
-    dff DFF6[1:0](.q(FD_forward_XM_sel), .d(forward_XM_sel), .clk(clk), .rst(rst));
-
-    dff DFF7(.q(DX_forward_XX_A), .d(FD_forward_XX_A), .clk(clk), .rst(rst));
-    dff DFF8(.q(DX_forward_XX_B), .d(FD_forward_XX_B), .clk(clk), .rst(rst));
-    dff DFF9(.q(DX_forward_XM_A), .d(FD_forward_XM_A), .clk(clk), .rst(rst));
-    dff DFF10(.q(DX_forward_XM_B), .d(FD_forward_XM_B), .clk(clk), .rst(rst));
-    dff DFF11[1:0](.q(DX_forward_XX_sel), .d(FD_forward_XX_sel), .clk(clk), .rst(rst));
-    dff DFF12[1:0](.q(DX_forward_XM_sel), .d(FD_forward_XM_sel), .clk(clk), .rst(rst));
 
    execute EXECUTE( .clk(clk), .rst(rst), 
                      .PC(DX_pc_inc), 

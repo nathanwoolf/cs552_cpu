@@ -25,7 +25,13 @@ module DX_pipe(
     input wire [15:0]read2Data,         output wire [15:0]DX_read2Data,
     input wire regWrite,                output wire DX_regWrite,
     input wire [2:0]writeReg,           output wire [2:0]DX_writeReg, 
-    input wire halt,                    output wire DX_halt
+    input wire halt,                    output wire DX_halt,
+    input wire FD_forward_XX_A,         output wire DX_forward_XX_A,
+    input wire FD_forward_XX_B,         output wire DX_forward_XX_B,
+    input wire FD_forward_XM_A,         output wire DX_forward_XM_A,
+    input wire FD_forward_XM_B,         output wire DX_forward_XM_B,
+    input wire [1:0]FD_forward_XX_sel,  output wire [1:0]DX_forward_XX_sel,
+    input wire [1:0]FD_forward_XM_sel,  output wire [1:0]DX_forward_XM_sel
     ); 
 
 dff INSTR[15:0](.d(FD_instr), .q(DX_instr), .clk(clk), .rst(rst));
@@ -54,5 +60,12 @@ dff READ2DATA[15:0](.d(read2Data), .q(DX_read2Data), .clk(clk), .rst(rst));
 dff REGWRITE(.d(regWrite), .q(DX_regWrite), .clk(clk), .rst(rst));
 dff WRITEREG[2:0](.d(writeReg), .q(DX_writeReg), .clk(clk), .rst(rst));
 dff HALT(.d(halt), .q(DX_halt), .clk(clk), .rst(rst));
+
+dff FORWARD_XX_A(.d(FD_forward_XX_A), .q(DX_forward_XX_A), .clk(clk), .rst(rst));
+dff FORWARD_XX_B(.d(FD_forward_XX_B), .q(DX_forward_XX_B), .clk(clk), .rst(rst));
+dff FORWARD_XM_A(.d(FD_forward_XM_A), .q(DX_forward_XM_A), .clk(clk), .rst(rst));
+dff FORWARD_XM_B(.d(FD_forward_XM_B), .q(DX_forward_XM_B), .clk(clk), .rst(rst));
+dff FORWARD_XX_SEL[1:0](.d(FD_forward_XX_sel), .q(DX_forward_XX_sel), .clk(clk), .rst(rst));
+dff FORWARD_XM_SEL[1:0](.d(FD_forward_XM_sel), .q(DX_forward_XM_sel), .clk(clk), .rst(rst));
 
 endmodule
