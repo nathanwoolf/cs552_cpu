@@ -36,9 +36,7 @@ module decode (input wire clk,
                output wire [15:0]read2Data,
                output wire regWrite,
                output wire [1:0]regDest,
-               output wire [2:0]writeReg, 
-               output wire [2:0]read1Reg, 
-               output wire [2:0]read2Reg);
+               output wire [2:0]writeReg);
    
    // control module signals
    wire [1:0]aluSrc;
@@ -68,8 +66,6 @@ module decode (input wire clk,
    assign imm5_ext = (zeroExt) ? {{11{1'b0}}, instr[4:0]} : {{11{instr[4]}}, instr[4:0]};
    assign imm8_ext = (zeroExt) ? {{8{1'b0}}, instr[7:0]} : {{8{instr[7]}}, instr[7:0]};
    assign imm11_ext = {{5{instr[10]}}, instr[10:0]};
-   assign read1Reg = instr[10:8]; 
-   assign read2Reg = instr[7:5];
 
    //pick the 'b' input of alu in execute
    mux4_1_16b ALUSOURCE(.sel(aluSrc), .inp0(read2Data), .inp1(imm8_ext), .inp2(imm5_ext), .inp3(16'b0), .out(aluB));

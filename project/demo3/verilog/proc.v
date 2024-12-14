@@ -61,9 +61,7 @@ module proc (/*AUTOARG*/
                regWrite;
    wire [2:0]  brControl, 
                aluOp,
-               writeReg, 
-               read1Reg, 
-               read2Reg;
+               writeReg;
    wire [15:0] aluA, 
                aluB, 
                imm11_ext, 
@@ -101,6 +99,13 @@ module proc (/*AUTOARG*/
                DX_instr;    
 
    // ---------- execute I/O ----------
+   wire        forward_XX_A,
+               forward_XX_B,
+               forward_XM_A,
+               forward_XM_B;
+   wire [1:0]  forward_XX_sel,
+               forward_XM_sel;
+
    wire [15:0] aluOut, 
                writeData, 
                specOps, 
@@ -153,31 +158,23 @@ module proc (/*AUTOARG*/
                .valid(valid), 
                .err());
 
-   hazard_unit HAZARD(
-      .instr(instr),
-      .FD_instr(FD_instr),
-      .FD_writeReg(writeReg),
-      .DX_writeReg(DX_writeReg),
-      .XM_writeReg(XM_writeReg),
-      .regDest(regDest),
-      .FD_regWrite(regWrite),
-      .DX_regWrite(DX_regWrite),
-      .XM_regWrite(XM_regWrite),
-      .FD_br_or_j(brControl[2] | jump),
-      .DX_br_or_j(DX_brControl[2] | DX_jump),
-      .XM_br_or_j(XM_br | XM_jump), // TODO
-      .MW_br_or_j(MW_br | MW_jump), // TODO
-      .next_instr(next_instr),
-      .NOP(NOP)
-    ); 
-       
-   forwarding FORWARD(.DX_instr(DX_instr), 
-                      .MW_rd(MW_writeReg), 
-                      .MW_regWrite(MW_regWrite),      //rgWrite is the one bit control signal
-                      .XM_rd(XM_writeReg), 
-                      .XM_regWrite(XM_regWrite), 
-                      .forwardA(forwardA), 
-                      .forwardB(forwardB));
+   // hazard_unit HAZARD(
+   //    .instr(instr),
+   //    .FD_instr(FD_instr),
+   //    .FD_writeReg(writeReg),
+   //    .DX_writeReg(DX_writeReg),
+   //    .XM_writeReg(XM_writeReg),
+   //    .regDest(regDest),
+   //    .FD_regWrite(regWrite),
+   //    .DX_regWrite(DX_regWrite),
+   //    .XM_regWrite(XM_regWrite),
+   //    .FD_br_or_j(brControl[2] | jump),
+   //    .DX_br_or_j(DX_brControl[2] | DX_jump),
+   //    .XM_br_or_j(XM_br | XM_jump), // TODO
+   //    .MW_br_or_j(MW_br | MW_jump), // TODO
+   //    .next_instr(next_instr),
+   //    .NOP(NOP)
+   //  ); 
 
    FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), 
                .instr(next_instr), .FD_instr(FD_instr), 
@@ -242,7 +239,17 @@ module proc (/*AUTOARG*/
                .read2Data(read2Data), .DX_read2Data(DX_read2Data),
                .regWrite(regWrite), .DX_regWrite(DX_regWrite),
                .writeReg(writeReg), .DX_writeReg(DX_writeReg),
-               .halt(halt), .DX_halt(DX_halt));                                   
+               .halt(halt), .DX_halt(DX_halt));            
+
+   forwarding FORWARD(.FD_instr(FD_instr), .DX_instr(DX_instr),
+                     .FD_br_or_j(brControl[2] | jump), .DX_br_or_j(DX_brControl[2] | DX_jump),
+                     .XM_br_or_j(XM_br | XM_jump), .MW_br_or_j(MW_br | MW_jump),
+                     .instr(instr), .FD_writeReg(writeReg), .DX_writeReg(DX_writeReg),
+                     .FD_regWrite(regWrite), .DX_regWrite(DX_regWrite),
+                     .forward_XX_A(forward_XX_A), .forward_XX_B(forward_XX_B),
+                     .forward_XM_A(forward_XM_A), .forward_XM_B(forward_XM_B),
+                     .forward_XX_sel(forward_XX_sel), .forward_XM_sel(forward_XM_sel), .next_instr(next_instr), .NOP(NOP)
+   );                       
 
    execute EXECUTE( .clk(clk), .rst(rst), 
                      .PC(DX_pc_inc), 
@@ -267,7 +274,14 @@ module proc (/*AUTOARG*/
                      .outData(outData), 
                      .specOps(specOps), 
                      .brControl(DX_brControl), 
-                     .setControl(DX_setControl));
+                     .setControl(DX_setControl),
+                     .forward_XX_A(forward_XX_A), .forward_XX_B(forward_XX_B),
+                     .forward_XM_A(forward_XM_A), .forward_XM_B(forward_XM_B),
+                     .forward_XX_sel(forward_XX_sel), .forward_XM_sel(forward_XM_sel),
+                     .XM_specOps(XM_specOps), .XM_pc_inc(XM_pc_inc), .XM_aluOut(XM_aluOut),
+                     .MW_specOps(MW_specOps), .MW_pc_inc(MW_pc_inc),
+                     .MW_readMemData(MW_readMemData), .MW_aluOut(MW_aluOut)
+);
 
    XM_pipe XM_PIPELINE(.clk(clk), .rst(rst), 
                .DX_instr(DX_instr), .XM_instr(XM_instr),
