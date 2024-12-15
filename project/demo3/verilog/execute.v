@@ -47,7 +47,7 @@ module execute (  input wire clk,
       // TODO: branch logic
       wire ZF, SF, OF, CF, brSel, brOrJmp;
 
-      wire [15:0] final_A, final_B;
+      wire [15:0] final_A, final_B, final_read2Data;
 
       assign brOrJmp = brSel | jump;
 
@@ -66,7 +66,7 @@ module execute (  input wire clk,
       assign specOut = (LBI) ? imm8_ext : 
                         (BTR_cs) ? BTR : SLBI;
 
-      assign outData = (STU) ? read2Data : final_B; 
+      assign outData = (STU) ? final_read2Data : final_B; 
 
       assign specOps = (setIf) ? 
                               (setControl == 2'b00) ? 
@@ -111,24 +111,56 @@ module execute (  input wire clk,
                               (forward_XM_sel == 2'b10) ? MW_readMemData :
                               MW_aluOut;
 
+
+
+
+      // // 2 : 1 for XX A
+      // wire [15:0]XX_FWD_A;
+      // assign XX_FWD_A = forward_XX_A ?  XX_SEL_VAL : aluA;
+
+      // // 2 : 1 for XM A
+      // assign final_A = forward_XM_A ?  XM_SEL_VAL : XX_FWD_A;
+
       // 2 : 1 for XX A
-      wire [15:0]XX_FWD_A;
-      assign XX_FWD_A = forward_XX_A ?  XX_SEL_VAL : aluA;
+      wire [15:0]XM_FWD_A;
+      assign XM_FWD_A = forward_XM_A ? XM_SEL_VAL : aluA;
 
       // 2 : 1 for XM A
-      assign final_A = forward_XM_A ?  XM_SEL_VAL : XX_FWD_A;
+      assign final_A = forward_XX_A ? XX_SEL_VAL : XM_FWD_A;
+
+
+      // // 2 : 1 for XX B
+      // wire [15:0]XX_FWD_B;
+      // assign XX_FWD_B = forward_XX_B ?  XX_SEL_VAL : aluB;
+
+      // // 2 : 1 for XM B
+      // assign final_B = forward_XM_B ?  XM_SEL_VAL : XX_FWD_B;
 
       // 2 : 1 for XX B
-      wire [15:0]XX_FWD_B;
-      assign XX_FWD_B = forward_XX_B ?  XX_SEL_VAL : aluB;
+      wire [15:0]XM_FWD_B;
+      assign XM_FWD_B = forward_XM_B & ~STU ?  XM_SEL_VAL : aluB;
 
       // 2 : 1 for XM B
-      assign final_B = forward_XM_B ?  XM_SEL_VAL : XX_FWD_B;
+      assign final_B = forward_XX_B & ~STU ?  XX_SEL_VAL : XM_FWD_B;
 
 
 
 
+      // This mux setup is XX/XM for read2Data (STU)
 
+      // // 2 : 1 for XX B
+      // wire [15:0]XX_FWD_read2Data;
+      // assign XX_FWD_read2Data = forward_XX_B ?  XX_SEL_VAL : read2Data;
+
+      // // 2 : 1 for XM B
+      // assign final_read2Data = forward_XM_B ?  XM_SEL_VAL : XX_FWD_read2Data;
+
+      // 2 : 1 for XX B
+      wire [15:0]XM_FWD_read2Data;
+      assign XM_FWD_read2Data = forward_XM_B ?  XM_SEL_VAL : read2Data;
+
+      // 2 : 1 for XM B
+      assign final_read2Data = forward_XX_B ?  XX_SEL_VAL : XM_FWD_read2Data;
 
 
 

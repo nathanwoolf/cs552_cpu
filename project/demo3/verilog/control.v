@@ -28,6 +28,7 @@ module control (input   wire [4:0] opcode,
                 output  reg STU,
                 output  reg BTR,
                 output  reg LBI,
+                output  reg memAccess,
                 output  reg setIf);
 
 wire [4:0]sel_opcode;
@@ -57,7 +58,8 @@ always @(*) begin
         BTR = 1'b0;
         LBI = 1'b0;
         setIf = 1'b0;
-        
+        memAccess = 1'b0;
+
         halt = 1'b0;
 
     casex (sel_opcode)
@@ -87,6 +89,7 @@ always @(*) begin
             aluSrc = 2'b10; 
             memWrite = 1'b1;
             STU = 1'b1; // TODO rename?
+            memAccess = 1'b1;
         end
 
         // LD
@@ -95,6 +98,7 @@ always @(*) begin
             regSrc = 2'b01;
             regWrite = 1'b1; 
             memRead = 1'b1;
+            memAccess = 1'b1;
         end
 
         // STU
@@ -105,6 +109,7 @@ always @(*) begin
             regWrite = 1'b1; 
             memWrite = 1'b1;
             STU = 1'b1;
+            memAccess = 1'b1;
         end
 
         // BTR

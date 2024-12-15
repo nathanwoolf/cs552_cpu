@@ -12,6 +12,8 @@ module decode (input wire clk,
                input wire MW_regWrite,
                input wire [2:0]MW_writeReg,  
                input wire valid,
+               input wire align_err_i,
+               input wire align_err_m,
                output wire memWrite,
                output wire memRead,       
                output wire [1:0]regSrc,    
@@ -36,7 +38,8 @@ module decode (input wire clk,
                output wire [15:0]read2Data,
                output wire regWrite,
                output wire [1:0]regDest,
-               output wire [2:0]writeReg);
+               output wire [2:0]writeReg, 
+               output wire memAccess);
    
    // control module signals
    wire [1:0]aluSrc;
@@ -45,12 +48,14 @@ module decode (input wire clk,
 
    assign regDest_int = regDest;
 
+   wire [4:0]opcode_align;
+   assign opcode_align = (align_err_i | align_err_m) ? 5'b00000 : instr[15:11];  
    //4-1 mux controlled by regdest -> decides what our write register is
    // instatiate control module
-   control CONTROLSIGS(.opcode(instr[15:11]), .r_typeALU(instr[1:0]), .aluSrc(aluSrc), .zeroExt(zeroExt), .valid(valid),
+   control CONTROLSIGS(.opcode(opcode_align), .r_typeALU(instr[1:0]), .aluSrc(aluSrc), .zeroExt(zeroExt), .valid(valid),
                         .regSrc(regSrc), .regWrite(regWrite), .regDest(regDest), .memWrite(memWrite), .memRead(memRead),
                          .aluJump(aluJump), .immSrc(immSrc), .brControl(brControl), .aluOp(aluOp), .invA(invA), .invB(invB), 
-                         .cin(cin), .STU(STU), .BTR(BTR), .LBI(LBI), .setIf(setIf), .halt(halt), .setControl(setControl), .jump(jump)); 
+                         .cin(cin), .STU(STU), .BTR(BTR), .LBI(LBI), .setIf(setIf), .halt(halt), .setControl(setControl), .jump(jump), .memAccess(memAccess)); 
    
    // 4 to 1 mux to control write data reg
    mux4_1_3b REGDEST(.sel(regDest_int), .inp0(instr[7:5]), .inp1(instr[10:8]), .inp2(instr[4:2]), .inp3(3'b111), .out(writeReg));
