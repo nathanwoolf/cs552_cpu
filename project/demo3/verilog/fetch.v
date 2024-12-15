@@ -13,6 +13,7 @@ module fetch ( input wire clk,
                input wire [15:0]PC, 
                input wire [15:0]pc_plus_two,
                input wire MW_align_err_m,
+               input wire flush,
                output wire [15:0]pc_inc, 
                output wire [15:0]instr,
                output wire valid, 
@@ -23,11 +24,14 @@ module fetch ( input wire clk,
 
    wire [15:0]sel_PC;
    // input PC
-   assign sel_PC = branch_or_jump ? PC : pc_plus_two;
+   assign sel_PC = flush ? PC : pc_plus_two;
 
    //want to use a latch for the pc to hold value
    wire [15:0]pc_latch;
-   register PCBLOCK(.clk(clk), .rst(rst), .data_in(sel_PC), .data_out(pc_latch), .write_en(~halt & ~(NOP ^ branch_or_jump)), .err(err));   //TODO what to do with 
+   // register PCBLOCK(.clk(clk), .rst(rst), .data_in(sel_PC), .data_out(pc_latch), .write_en(~halt & ~(NOP ^ branch_or_jump)), .err(err));   //TODO what to do with 
+   // register PCBLOCK(.clk(clk), .rst(rst), .data_in(sel_PC), .data_out(pc_latch), .write_en(~halt & ~(branch_or_jump)), .err(err));   //TODO what to do with 
+   register PCBLOCK(.clk(clk), .rst(rst), .data_in(sel_PC), .data_out(pc_latch), .write_en(~halt & ~NOP), .err(err));   //TODO what to do with 
+
 
    //increment pc by two
    wire sum_cout;
@@ -38,7 +42,13 @@ module fetch ( input wire clk,
    //    read the instruction at pc to inst_fetch
    //    use halt bit to enable/dump memory file
    //    hard code write to zero (were only reading here)
-   memory2c_align instruction_mem(.data_out(instr), .data_in(16'b0), .addr(pc_latch), .enable(1'b1), .wr(1'b0), .createdump(halt | MW_align_err_m), .clk(clk), .rst(rst), .err(align_err_i)); 
+
+   memory2c instruction_mem(.data_out(instr), .data_in(16'b0), .addr(pc_latch), .enable(1'b1), .wr(1'b0), .createdump(halt), .clk(clk), .rst(rst));
+   // memory2c_align instruction_mem(.data_out(instr), .data_in(16'b0), .addr(pc_latch), .enable(1'b1), .wr(1'b0), .createdump(halt | MW_align_err_m), .clk(clk), .rst(rst), .err(align_err_i)); 
+   // stallmem instruction_mem(.DataOut(instr), .Done(), .Stall(Stall), .CacheHit(CacheHit), .DataIn(16'b0), .Addr(pc_latch), 
+   //                            .Wr(1'b0), .Rd(1'b1), .createdump(halt), .clk(clk), .rst(rst), .err()); 
+
+
 
    assign valid = 1'b1;
    

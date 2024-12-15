@@ -11,7 +11,8 @@ module MW_pipe(
     input wire XM_jump,             output wire MW_jump,
     input wire XM_br,               output wire MW_br,
     input wire align_err_m,         output wire MW_align_err_m,
-    input wire XM_halt,             output wire MW_halt
+    input wire XM_halt,             output wire MW_halt,
+    input wire XM_flush,            output wire MW_flush
 ); 
 
 dff READ_MEM_DATA[15:0](.d(readData), .q(MW_readMemData), .clk(clk), .rst(rst));
@@ -26,6 +27,7 @@ dff JUMP(.d(XM_jump), .q(MW_jump), .clk(clk), .rst(rst));
 dff BR(.d(XM_br), .q(MW_br), .clk(clk), .rst(rst));
 dff HALT(.d(XM_halt), .q(MW_halt), .clk(clk), .rst(rst));
 dff ALIGNERRMEM(.d(align_err_m), .q(MW_align_err_m), .clk(clk), .rst(rst));
+dff FLUSH(.d(XM_flush), .q(MW_flush), .clk(clk), .rst(rst));
 
 
 endmodule

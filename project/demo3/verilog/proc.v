@@ -112,7 +112,8 @@ module proc (/*AUTOARG*/
     wire        forward_XX_A,
                 forward_XX_B,
                 forward_XM_A,
-                forward_XM_B;
+                forward_XM_B,
+                flush;
     wire [1:0]  forward_XX_sel,
                 forward_XM_sel;
 
@@ -155,7 +156,7 @@ module proc (/*AUTOARG*/
                 MW_aluOut,
                 MW_specOps;
 
-    wire align_err_i, align_err_m;
+    wire align_err_i, align_err_m, FD_flush, XM_flush, flush_again, MW_flush, FD_flush_again, flush_final, FD_flush_final;
 
     // instantiate fetch module
     fetch FETCH(.clk(clk), .rst(rst), .halt(MW_halt), 
@@ -167,6 +168,7 @@ module proc (/*AUTOARG*/
                 .instr(instr),
                 .valid(valid), 
                 .MW_align_err_m(MW_align_err_m),
+                .flush(MW_flush),
                 .err(), .align_err_i(align_err_i));
 
    // hazard_unit HAZARD(
@@ -187,7 +189,7 @@ module proc (/*AUTOARG*/
    //    .NOP(NOP)
    //  ); 
 
-   FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), 
+   FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), .flush(flush), .flush_again(flush_again), .flush_final(flush_final),
                .instr(next_instr), .FD_instr(FD_instr), 
                .pc_inc(pc_inc), .FD_pc_inc(FD_pc_inc),
                .valid(valid), .FD_valid(FD_valid),
@@ -196,9 +198,9 @@ module proc (/*AUTOARG*/
                .forward_XM_A(forward_XM_A), .FD_forward_XM_A(FD_forward_XM_A),
                .forward_XM_B(forward_XM_B), .FD_forward_XM_B(FD_forward_XM_B),
                .forward_XX_sel(forward_XX_sel), .FD_forward_XX_sel(FD_forward_XX_sel),
-               .forward_XM_sel(forward_XM_sel), .FD_forward_XM_sel(FD_forward_XM_sel));
+               .forward_XM_sel(forward_XM_sel), .FD_forward_XM_sel(FD_forward_XM_sel), .FD_flush(FD_flush), .FD_flush_again(FD_flush_again), .FD_flush_final(FD_flush_final));
 
-   decode DECODE( .clk(clk), .rst(rst), 
+   decode DECODE( .clk(clk), .rst(rst), .flush(FD_flush), .flush_again(FD_flush_again), .flush_final(FD_flush_final),
                   .instr(FD_instr), 
                   .writeData(writeData),
                   .MW_regWrite(MW_regWrite),
@@ -233,7 +235,8 @@ module proc (/*AUTOARG*/
                   .align_err_i(align_err_i),
                   .align_err_m(align_err_m));  
 
-   DX_pipe DX_pipeline(.clk(clk), .rst(rst), 
+   DX_pipe DX_pipeline(.clk(clk), .rst(rst), .flush(flush | flush_again | flush_final),
+//    .DX_flush(DX_flush),
                .FD_instr(FD_instr), .DX_instr(DX_instr),
                .pc_inc(FD_pc_inc), .DX_pc_inc(DX_pc_inc),
                .memWrite(memWrite), .DX_memWrite(DX_memWrite),
@@ -299,7 +302,9 @@ module proc (/*AUTOARG*/
                      .next_pc(next_pc), 
                      .aluOut(aluOut), 
                      .outData(outData), 
-                     .specOps(specOps), 
+                     .specOps(specOps),
+                     .flush(flush), .flush_again(flush_again), .flush_final(flush_final),
+                     .XM_flush(XM_flush), .MW_flush(MW_flush),
                      .brControl(DX_brControl), 
                      .setControl(DX_setControl),
                      .forward_XX_A(DX_forward_XX_A), .forward_XX_B(DX_forward_XX_B),
@@ -311,6 +316,7 @@ module proc (/*AUTOARG*/
 );
 
    XM_pipe XM_PIPELINE(.clk(clk), .rst(rst), 
+               .flush(flush),       .XM_flush(XM_flush),
                .DX_instr(DX_instr), .XM_instr(XM_instr),
                .next_pc(next_pc), .XM_next_pc(XM_next_pc), 
                .pc_inc(DX_pc_inc), .XM_pc_inc(XM_pc_inc),
@@ -339,6 +345,7 @@ module proc (/*AUTOARG*/
                   .MW_align_err_m(MW_align_err_m));   
 
    MW_pipe MW_PIPELINE(.clk(clk), .rst(rst), 
+               .XM_flush(XM_flush), .MW_flush(MW_flush),
                .readData(readData), .MW_readMemData(MW_readMemData), 
                .XM_regSrc(XM_regSrc), .MW_regSrc(MW_regSrc), 
                .XM_aluOut(XM_aluOut), .MW_aluOut(MW_aluOut), 

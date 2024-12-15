@@ -38,14 +38,24 @@ module execute (  input wire clk,
                   input wire [15:0]MW_specOps,
                   input wire [15:0]MW_pc_inc,
                   input wire [15:0]MW_readMemData,
-                  input wire [15:0]MW_aluOut, 
+                  input wire [15:0]MW_aluOut,
+                  input wire XM_flush, input wire MW_flush,
                   output wire [15:0]next_pc,
                   output wire [15:0]aluOut,
                   output wire [15:0]outData,
-                  output wire [15:0]specOps);
+                  output wire [15:0]specOps,
+                  output wire flush, output wire flush_again, output wire flush_final);
 
       // TODO: branch logic
       wire ZF, SF, OF, CF, brSel, brOrJmp;
+
+      // TODO
+
+      assign flush = aluJump | brOrJmp;
+
+      assign flush_again = XM_flush;
+
+      assign flush_final = MW_flush;
 
       wire [15:0] final_A, final_B, final_read2Data;
 

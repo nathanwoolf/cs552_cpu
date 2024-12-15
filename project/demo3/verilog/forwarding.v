@@ -81,7 +81,7 @@ assign forward_XM_sel = ( (DX_instr[15:11] == 5'b11000) |
 
 // TODO here for now, remove when adding branch prediction
 assign NOP = (FD_instr !== 16'b0000) ? (
-                    FD_br_or_j | DX_br_or_j | XM_br_or_j | MW_br_or_j | 
+                    // FD_br_or_j | DX_br_or_j | XM_br_or_j | MW_br_or_j | 
                     ((FD_instr[15:11] == 5'b10001) & (
                         (read_RS & (FD_regWrite & FD_writeReg == instr[10:8])) | 
                         (read_RT & (FD_regWrite & FD_writeReg == instr[7:5])) |
@@ -89,6 +89,7 @@ assign NOP = (FD_instr !== 16'b0000) ? (
                     ))
                 ) : 1'b0;
 
+// assign next_instr = instr;
 assign next_instr = NOP ? 16'h0800 : instr;
 
 endmodule
