@@ -157,7 +157,7 @@ module proc_hier_pbench();
 
    // TODO all caching stuff
    // new added 05/03
-   assign ICacheReq = DUT.p0.MEMORY.readData;
+   assign ICacheReq = DUT.p0.FETCH.done;
    // Signal indicating a valid instruction read request to cache
    // Above assignment is a dummy example
    

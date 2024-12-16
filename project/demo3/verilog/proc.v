@@ -26,12 +26,14 @@ module proc (/*AUTOARG*/
 
     wire [1:0]regDest;
     // ---------- fetch I/O ----------
-    wire halt, valid, NOP;  
+    wire halt, valid, NOP, stall_i, stall_m, stall;  
     wire [15:0] instr,
                 next_instr,  
                 next_pc,
                 pc_inc;
 
+   // assign stall = stall_i | stall_m;
+   assign stall = stall_i; 
     // ---------- decode I/O ----------
 
     //  ---------- DX_ latch singals ----------  
@@ -159,7 +161,7 @@ module proc (/*AUTOARG*/
     wire align_err_i, align_err_m, FD_flush, XM_flush, MW_flush, FD_flush_again, FD_flush_final;
 
     // instantiate fetch module
-    fetch FETCH(.clk(clk), .rst(rst), .halt(MW_halt), 
+    fetch FETCH(.clk(clk), .rst(rst), .halt(MW_halt), .stall(stall_i),
                 .branch_or_jump(MW_br | MW_jump),
                 .NOP(NOP),
                 .PC(MW_next_pc), // TODO is this correct stage of next_pc?
@@ -170,7 +172,7 @@ module proc (/*AUTOARG*/
                 .flush(MW_flush),
                 .err(), .align_err_i(align_err_i));
 
-   FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), .flush(flush), .flush_again(XM_flush), .flush_final(MW_flush),
+   FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), .flush(flush), .flush_again(XM_flush), .flush_final(MW_flush), .stall(stall),
                .instr(next_instr), .FD_instr(FD_instr), 
                .pc_inc(pc_inc), .FD_pc_inc(FD_pc_inc),
                .valid(valid), .FD_valid(FD_valid),
@@ -182,6 +184,7 @@ module proc (/*AUTOARG*/
                .forward_XM_sel(forward_XM_sel), .FD_forward_XM_sel(FD_forward_XM_sel), .FD_flush(FD_flush), .FD_flush_again(FD_flush_again), .FD_flush_final(FD_flush_final));
 
    decode DECODE( .clk(clk), .rst(rst), .flush(FD_flush), .flush_again(FD_flush_again), .flush_final(FD_flush_final),
+                  .stall(stall),
                   .instr(FD_instr), 
                   .writeData(writeData),
                   .MW_regWrite(MW_regWrite),
@@ -215,7 +218,7 @@ module proc (/*AUTOARG*/
                   .memAccess(memAccess),
                   .align_err_i(align_err_i));  
 
-   DX_pipe DX_pipeline(.clk(clk), .rst(rst), .flush(flush | XM_flush | MW_flush),
+   DX_pipe DX_pipeline(.clk(clk), .rst(rst), .flush(flush | XM_flush | MW_flush), .stall(stall),
 //    .DX_flush(DX_flush),
                .FD_instr(FD_instr), .DX_instr(DX_instr),
                .pc_inc(FD_pc_inc), .DX_pc_inc(DX_pc_inc),
@@ -295,7 +298,7 @@ module proc (/*AUTOARG*/
                      .MW_readMemData(MW_readMemData), .MW_aluOut(MW_aluOut)
 );
 
-   XM_pipe XM_PIPELINE(.clk(clk), .rst(rst), 
+   XM_pipe XM_PIPELINE(.clk(clk), .rst(rst), .stall(stall),
                .flush(flush),       .XM_flush(XM_flush),
                .DX_instr(DX_instr), .XM_instr(XM_instr),
                .next_pc(next_pc), .XM_next_pc(XM_next_pc), 
@@ -320,9 +323,10 @@ module proc (/*AUTOARG*/
                   .writeData(XM_writeData),
                   .memAccess(XM_memAccess), 
                   .halt(MW_halt),                  //END INPUTS
-                  .readData(readData));   
+                  .readData(readData),
+                  .stall_m(stall_m));   
 
-   MW_pipe MW_PIPELINE(.clk(clk), .rst(rst), 
+   MW_pipe MW_PIPELINE(.clk(clk), .rst(rst), .stall(stall),
                .XM_flush(XM_flush), .MW_flush(MW_flush),
                .readData(readData), .MW_readMemData(MW_readMemData), 
                .XM_regSrc(XM_regSrc), .MW_regSrc(MW_regSrc), 
