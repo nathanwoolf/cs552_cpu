@@ -14,9 +14,7 @@ module memory (input wire clk,
                input wire [15:0]writeData,
                input wire halt,
                input wire memAccess,
-               input wire MW_align_err_m,
-               output wire [15:0]readData,
-               output wire align_err_m);
+               output wire [15:0]readData);
 
    // TODO We do not use memRead currently.
 

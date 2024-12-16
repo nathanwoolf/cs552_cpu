@@ -13,7 +13,6 @@ module decode (input wire clk,
                input wire [2:0]MW_writeReg,  
                input wire valid,
                input wire align_err_i,
-               input wire align_err_m,
                input wire flush,
                input wire flush_again,
                input wire flush_final,
@@ -51,20 +50,20 @@ module decode (input wire clk,
 
    assign regDest_int = regDest;
 
-   // wire [4:0]opcode_align;
-   // assign opcode_align = (align_err_i | align_err_m) ? 5'b00000 : instr[15:11];
-   // assign opcode_align = instr[15:11];  
-
+   wire [4:0]opcode_align;
    wire[15:0] flush_instr;
+   
+   // Br Pred
    assign flush_instr = (flush | flush_again | flush_final) ? 16'h0800 : instr;
 
-
+   // Mem Align
+   assign opcode_align = (align_err_i) ? 5'b00000 : flush_instr[15:11];
 
 
 
    //4-1 mux controlled by regdest -> decides what our write register is
    // instatiate control module
-   control CONTROLSIGS(.opcode(flush_instr[15:11]), .r_typeALU(flush_instr[1:0]), .aluSrc(aluSrc), .zeroExt(zeroExt), .valid(valid),
+   control CONTROLSIGS(.opcode(opcode_align), .r_typeALU(flush_instr[1:0]), .aluSrc(aluSrc), .zeroExt(zeroExt), .valid(valid),
                         .regSrc(regSrc), .regWrite(regWrite), .regDest(regDest), .memWrite(memWrite), .memRead(memRead),
                          .aluJump(aluJump), .immSrc(immSrc), .brControl(brControl), .aluOp(aluOp), .invA(invA), .invB(invB), 
                          .cin(cin), .STU(STU), .BTR(BTR), .LBI(LBI), .setIf(setIf), .halt(halt), .setControl(setControl), .jump(jump), .memAccess(memAccess)); 

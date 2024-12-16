@@ -167,7 +167,6 @@ module proc (/*AUTOARG*/
                 .pc_inc(pc_inc), 
                 .instr(instr),
                 .valid(valid), 
-                .MW_align_err_m(MW_align_err_m),
                 .flush(MW_flush),
                 .err(), .align_err_i(align_err_i));
 
@@ -214,8 +213,7 @@ module proc (/*AUTOARG*/
                   .valid(FD_valid),
                   .regDest(regDest),
                   .memAccess(memAccess),
-                  .align_err_i(align_err_i),
-                  .align_err_m(align_err_m));  
+                  .align_err_i(align_err_i));  
 
    DX_pipe DX_pipeline(.clk(clk), .rst(rst), .flush(flush | XM_flush | MW_flush),
 //    .DX_flush(DX_flush),
@@ -286,6 +284,7 @@ module proc (/*AUTOARG*/
                      .outData(outData), 
                      .specOps(specOps),
                      .flush(flush),
+                     .halt(XM_halt),
                      .brControl(DX_brControl), 
                      .setControl(DX_setControl),
                      .forward_XX_A(DX_forward_XX_A), .forward_XX_B(DX_forward_XX_B),
@@ -321,9 +320,7 @@ module proc (/*AUTOARG*/
                   .writeData(XM_writeData),
                   .memAccess(XM_memAccess), 
                   .halt(MW_halt),                  //END INPUTS
-                  .readData(readData), 
-                  .align_err_m(align_err_m), 
-                  .MW_align_err_m(MW_align_err_m));   
+                  .readData(readData));   
 
    MW_pipe MW_PIPELINE(.clk(clk), .rst(rst), 
                .XM_flush(XM_flush), .MW_flush(MW_flush),
@@ -337,8 +334,7 @@ module proc (/*AUTOARG*/
                .XM_writeReg(XM_writeReg), .MW_writeReg(MW_writeReg),
                .XM_jump(XM_jump), .MW_jump(MW_jump),
                .XM_br(XM_br), .MW_br(MW_br),
-               .XM_halt(XM_halt), .MW_halt(MW_halt), 
-               .align_err_m(align_err_m), .MW_align_err_m(MW_align_err_m));   
+               .XM_halt(XM_halt), .MW_halt(MW_halt));   
 
    wb WRITEBACK(  .regSrc(MW_regSrc), 
                   .PC(MW_pc_inc), 

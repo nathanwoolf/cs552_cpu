@@ -12,7 +12,6 @@ module fetch ( input wire clk,
                input wire NOP,
                input wire [15:0]PC, 
                input wire [15:0]pc_plus_two,
-               input wire MW_align_err_m,
                input wire flush,
                output wire [15:0]pc_inc, 
                output wire [15:0]instr,
@@ -43,8 +42,9 @@ module fetch ( input wire clk,
    //    use halt bit to enable/dump memory file
    //    hard code write to zero (were only reading here)
 
-   memory2c instruction_mem(.data_out(instr), .data_in(16'b0), .addr(pc_latch), .enable(1'b1), .wr(1'b0), .createdump(halt), .clk(clk), .rst(rst));
+   // memory2c instruction_mem(.data_out(instr), .data_in(16'b0), .addr(pc_latch), .enable(1'b1), .wr(1'b0), .createdump(halt), .clk(clk), .rst(rst));
    // memory2c_align instruction_mem(.data_out(instr), .data_in(16'b0), .addr(pc_latch), .enable(1'b1), .wr(1'b0), .createdump(halt | MW_align_err_m), .clk(clk), .rst(rst), .err(align_err_i)); 
+   memory2c_align instruction_mem(.data_out(instr), .data_in(16'b0), .addr(pc_latch), .enable(1'b1), .wr(1'b0), .createdump(halt), .clk(clk), .rst(rst), .err(align_err_i)); 
    // stallmem instruction_mem(.DataOut(instr), .Done(), .Stall(Stall), .CacheHit(CacheHit), .DataIn(16'b0), .Addr(pc_latch), 
    //                            .Wr(1'b0), .Rd(1'b1), .createdump(halt), .clk(clk), .rst(rst), .err()); 
 
