@@ -156,7 +156,7 @@ module proc (/*AUTOARG*/
                 MW_aluOut,
                 MW_specOps;
 
-    wire align_err_i, align_err_m, FD_flush, XM_flush, flush_again, MW_flush, FD_flush_again, flush_final, FD_flush_final;
+    wire align_err_i, align_err_m, FD_flush, XM_flush, MW_flush, FD_flush_again, FD_flush_final;
 
     // instantiate fetch module
     fetch FETCH(.clk(clk), .rst(rst), .halt(MW_halt), 
@@ -171,25 +171,7 @@ module proc (/*AUTOARG*/
                 .flush(MW_flush),
                 .err(), .align_err_i(align_err_i));
 
-   // hazard_unit HAZARD(
-   //    .instr(instr),
-   //    .FD_instr(FD_instr),
-   //    .FD_writeReg(writeReg),
-   //    .DX_writeReg(DX_writeReg),
-   //    .XM_writeReg(XM_writeReg),
-   //    .regDest(regDest),
-   //    .FD_regWrite(regWrite),
-   //    .DX_regWrite(DX_regWrite),
-   //    .XM_regWrite(XM_regWrite),
-   //    .FD_br_or_j(brControl[2] | jump),
-   //    .DX_br_or_j(DX_brControl[2] | DX_jump),
-   //    .XM_br_or_j(XM_br | XM_jump), // TODO
-   //    .MW_br_or_j(MW_br | MW_jump), // TODO
-   //    .next_instr(next_instr),
-   //    .NOP(NOP)
-   //  ); 
-
-   FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), .flush(flush), .flush_again(flush_again), .flush_final(flush_final),
+   FD_pipe FD_PIPELINE(.clk(clk), .rst(rst), .flush(flush), .flush_again(XM_flush), .flush_final(MW_flush),
                .instr(next_instr), .FD_instr(FD_instr), 
                .pc_inc(pc_inc), .FD_pc_inc(FD_pc_inc),
                .valid(valid), .FD_valid(FD_valid),
@@ -235,7 +217,7 @@ module proc (/*AUTOARG*/
                   .align_err_i(align_err_i),
                   .align_err_m(align_err_m));  
 
-   DX_pipe DX_pipeline(.clk(clk), .rst(rst), .flush(flush | flush_again | flush_final),
+   DX_pipe DX_pipeline(.clk(clk), .rst(rst), .flush(flush | XM_flush | MW_flush),
 //    .DX_flush(DX_flush),
                .FD_instr(FD_instr), .DX_instr(DX_instr),
                .pc_inc(FD_pc_inc), .DX_pc_inc(DX_pc_inc),
@@ -303,8 +285,7 @@ module proc (/*AUTOARG*/
                      .aluOut(aluOut), 
                      .outData(outData), 
                      .specOps(specOps),
-                     .flush(flush), .flush_again(flush_again), .flush_final(flush_final),
-                     .XM_flush(XM_flush), .MW_flush(MW_flush),
+                     .flush(flush),
                      .brControl(DX_brControl), 
                      .setControl(DX_setControl),
                      .forward_XX_A(DX_forward_XX_A), .forward_XX_B(DX_forward_XX_B),
