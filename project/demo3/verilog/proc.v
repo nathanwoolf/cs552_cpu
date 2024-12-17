@@ -32,8 +32,8 @@ module proc (/*AUTOARG*/
                 next_pc,
                 pc_inc;
 
-   // assign stall = stall_i | stall_m;
-   assign stall = stall_i; 
+   assign stall = stall_i | stall_m;
+//    assign stall = stall_i; 
     // ---------- decode I/O ----------
 
     //  ---------- DX_ latch singals ----------  
@@ -162,6 +162,8 @@ module proc (/*AUTOARG*/
 
     // instantiate fetch module
     fetch FETCH(.clk(clk), .rst(rst), .halt(MW_halt), .stall(stall_i),
+                .MW_align_err_m(MW_align_err_m),
+                .stall_m(stall_m),
                 .branch_or_jump(MW_br | MW_jump),
                 .NOP(NOP),
                 .PC(MW_next_pc), // TODO is this correct stage of next_pc?
@@ -216,7 +218,8 @@ module proc (/*AUTOARG*/
                   .valid(FD_valid),
                   .regDest(regDest),
                   .memAccess(memAccess),
-                  .align_err_i(align_err_i));  
+                  .align_err_i(align_err_i),
+                  .MW_align_err_m(MW_align_err_m));
 
    DX_pipe DX_pipeline(.clk(clk), .rst(rst), .flush(flush | XM_flush | MW_flush), .stall(stall),
 //    .DX_flush(DX_flush),
@@ -316,15 +319,16 @@ module proc (/*AUTOARG*/
                .DX_memAccess(DX_memAccess), .XM_memAccess(XM_memAccess),
                .DX_halt(DX_halt), .XM_halt(XM_halt));
 
-   memory MEMORY( .clk(clk), .rst(rst), 
+   memory MEMORY( .clk(clk), .rst(rst), .stall(stall),
                   .memWrite(XM_memWrite), 
                   .memRead(XM_memRead), 
                   .aluOut(XM_aluOut), 
                   .writeData(XM_writeData),
                   .memAccess(XM_memAccess), 
-                  .halt(MW_halt),                  //END INPUTS
+                  .halt(MW_halt | MW_align_err_m), // TODO                  //END INPUTS
                   .readData(readData),
-                  .stall_m(stall_m));   
+                  .stall_m(stall_m),
+                  .align_err_m(align_err_m));   
 
    MW_pipe MW_PIPELINE(.clk(clk), .rst(rst), .stall(stall),
                .XM_flush(XM_flush), .MW_flush(MW_flush),
@@ -338,7 +342,8 @@ module proc (/*AUTOARG*/
                .XM_writeReg(XM_writeReg), .MW_writeReg(MW_writeReg),
                .XM_jump(XM_jump), .MW_jump(MW_jump),
                .XM_br(XM_br), .MW_br(MW_br),
-               .XM_halt(XM_halt), .MW_halt(MW_halt));   
+               .XM_halt(XM_halt), .MW_halt(MW_halt),
+               .align_err_m(align_err_m), .MW_align_err_m(MW_align_err_m));   
 
    wb WRITEBACK(  .regSrc(MW_regSrc), 
                   .PC(MW_pc_inc), 

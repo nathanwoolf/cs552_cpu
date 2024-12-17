@@ -17,6 +17,7 @@ module decode (input wire clk,
                input wire flush,
                input wire flush_again,
                input wire flush_final,
+               input wire MW_align_err_m,
                output wire memWrite,
                output wire memRead,       
                output wire [1:0]regSrc,    
@@ -75,7 +76,7 @@ module decode (input wire clk,
    // outputs from reg file go to alusrc1 and alusrc2 -> need to mux read2Data with other signals
    wire err; 
    regFile_bypass REGFILE(.read1RegSel(flush_instr[10:8]), .read2RegSel(flush_instr[7:5]), .writeData(writeData), 
-                        .writeEn(MW_regWrite & ~stall), .read1Data(aluA), .read2Data(read2Data), .writeRegSel(MW_writeReg),
+                        .writeEn(MW_regWrite & ~stall & ~MW_align_err_m), .read1Data(aluA), .read2Data(read2Data), .writeRegSel(MW_writeReg),
                         .err(err), .clk(clk), .rst(rst)); 
 
    // sign extend or zero extend our immediate values form instr bits

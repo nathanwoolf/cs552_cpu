@@ -11,7 +11,8 @@ module MW_pipe(
     input wire XM_jump,             output wire MW_jump,
     input wire XM_br,               output wire MW_br,
     input wire XM_halt,             output wire MW_halt,
-    input wire XM_flush,            output wire MW_flush
+    input wire XM_flush,            output wire MW_flush,
+    input wire align_err_m,         output wire MW_align_err_m
 ); 
 
 wire [15:0]readData_m; 
@@ -61,6 +62,10 @@ dff HALT(.d(halt_m), .q(MW_halt), .clk(clk), .rst(rst));
 wire flush_m; 
 assign flush_m = stall ? MW_flush : XM_flush;
 dff FLUSH(.d(flush_m), .q(MW_flush), .clk(clk), .rst(rst));
+
+wire align_err_m_m;
+assign align_err_m_m = stall ? MW_align_err_m : align_err_m;
+dff ALIGN_ERR_M(.d(align_err_m_m), .q(MW_align_err_m), .clk(clk), .rst(rst));
 
 
 endmodule
